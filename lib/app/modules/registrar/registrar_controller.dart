@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gasjm/app/core/theme/app_theme.dart';
-import 'package:gasjm/app/core/utils/mensajes.dart';
+import 'package:gasjm/app/core/theme/app_theme.dart'; 
 import 'package:gasjm/app/data/models/usuario_model.dart';
 import 'package:gasjm/app/data/repository/authenticacion_repository.dart';
 import 'package:gasjm/app/routes/app_routes.dart';
@@ -23,16 +22,11 @@ class RegistrarController extends GetxController {
   //Variable para guardar la cedula
   late String cedula = '';
   //late String perfil = '';
-  final perfil = "cliente";
+  final perfil = "Repartidor";
 //  UsuarioModel usuario;
   @override
   void onInit() {
-    /*  usuario = UsuarioModel(
-        nombreTextoController.text,
-        apellidoTextoController.text,
-        correoElectronicoTextoController.text,
-        contrasenaTextoController.text);
-        */
+ 
     _obtenerCedulaYPerfil();
 
     super.onInit();
@@ -87,8 +81,18 @@ class RegistrarController extends GetxController {
       await _authRepository.registrarUsuario(usuarioDatos);
 //Remover datos locales
       _removerCedulaYPerfil();
+
       //Mensaje de ingreso
-      Mensajes.showToastBienvenido("Bienvenido...");
+      //Mensajes.showToastBienvenido("Bienvenido...");
+        Get.snackbar(
+        'Mensaje ',
+         '¡Bienvenido a GasJM!',
+        duration: const Duration(seconds: 4),
+        backgroundColor: AppTheme.blueDark,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        borderRadius: 0
+      );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         errorParaCorreo.value = 'La contraseña es demasiado débil';
@@ -113,74 +117,7 @@ class RegistrarController extends GetxController {
     //perfil = p ?? '';
   }
 
-  //Registrocon Google
-
-  Future<void> registrarConGoogle() async {
-    //Obtener datos
-    final nombre = nombreTextoController.text;
-    final apellido = apellidoTextoController.text;
-    final correo = correoElectronicoTextoController.text;
-    final contrasena = contrasenaTextoController.text; //Guardar en model
-    UsuarioModel usuarioDatos = UsuarioModel(
-        nombre, apellido, correo, contrasena,
-        cedula: cedula, perfil: perfil);
-    try {
-      cargandoParaSocialMedia.value = true;
-
-      errorParaSocialMedia.value = null;
-      await _autenticacioRepository.registrarUsuarioConGoogle(usuarioDatos);
-      //
-      Mensajes.showToastBienvenido("Bienvenido...");
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        errorParaSocialMedia.value =
-            'Ningún usuario encontrado con ese correo electrónico.';
-      } else if (e.code == 'wrong-password') {
-        errorParaSocialMedia.value = 'Contraseña incorrecta.';
-      }
-    } catch (e) {
-      errorParaSocialMedia.value =
-          'Error de inicio de sesión. Inténtalo de nuevo.';
-    }
-    cargandoParaSocialMedia.value = false;
-  }
-
-  //Dependencia de AutenticacionRepository
-  final _autenticacioRepository = Get.find<AutenticacionRepository>();
-  //Existe algun error si o no
-  final errorParaSocialMedia = Rx<String?>(null);
-  //Se cago si o no
-  final cargandoParaSocialMedia = RxBool(false);
-  //
-  Future<void> iniciarSesionConGoogle() =>
-      _iniciarSesion(_autenticacioRepository.iniciarSesionConGoogle);
-  //credencial para google
-  Future<void> _iniciarSesion(
-      Future<AutenticacionUsuario?> Function() auxUsuario) async {
-    try {
-      cargandoParaSocialMedia.value = true;
-      errorParaSocialMedia.value = null;
-      await auxUsuario();
-      //Mensaje de ingreso
-      //  Mensajes.showToastBienvenido("Bienvenido...");
-      Get.snackbar(
-        'Mensaje ',
-         '¡Bienvenido a GasJM!',
-        duration: const Duration(seconds: 4),
-        backgroundColor: AppTheme.blueDark,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        borderRadius: 0
-      );
-    } on FirebaseException catch (e) {
-      errorParaSocialMedia.value = e.code;
-    } catch (e) {
-      errorParaSocialMedia.value = "Error de registro. Inténtalo de nuevo.";
-    }
-
-    cargandoParaSocialMedia.value = false;
-  }
-
+  
   //Eliminar la cedula del usuario de forma local
   _removerCedulaYPerfil() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

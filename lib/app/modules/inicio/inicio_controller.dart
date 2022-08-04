@@ -1,31 +1,35 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gasjm/app/core/theme/app_theme.dart';
 import 'package:gasjm/app/core/utils/map_style.dart';
-import 'package:gasjm/app/data/models/pedido_model.dart';
 import 'package:gasjm/app/data/models/usuario_model.dart';
 import 'package:gasjm/app/data/repository/pedido_repository.dart';
+import 'package:gasjm/app/data/repository/persona_repository.dart';
 import 'package:gasjm/app/data/repository/usuario_repository.dart';
+import 'package:gasjm/app/modules/inicio/widgets/ir_content.dart';
+import 'package:gasjm/app/modules/inicio/widgets/navegacion_content.dart';
 import 'package:gasjm/app/routes/app_routes.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:location/location.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:intl/intl.dart';
 
 class InicioController extends GetxController {
+  //Variables
+
+  final Map<MarkerId, Marker> _markers = {};
+
+  Set<Marker> get markers => _markers.values.toSet();
+
+  //
+  final _markersController = StreamController<String>.broadcast();
+  Stream<String> get onMarkerTap => _markersController.stream;
+  late StreamSubscription<Position> streamSubscription;
+
   @override
   void onInit() {
-    //Obtiene datos del usuario que inicio sesion
-    getUsuarioActual();
-    //Obtiene ubicacion actual del dispositivo
+    _cargarDatosIniciales();
     getLocation();
-    //
-    _cargarDiaYCantidadInicial();
-
     super.onInit();
   }
 
@@ -36,15 +40,9 @@ class InicioController extends GetxController {
 
   @override
   void onClose() {
+    super.onClose();
     _markersController.close();
     streamSubscription.cancel();
-    direccionTextoController.dispose();
-    diaDeEntregaPedidoController.value.dispose();
-    cantidadTextoController.dispose();
-
-    notaTextoController.dispose();
-
-    super.onClose();
   }
 
   /* DATOS DEL USUARIO */
@@ -53,167 +51,178 @@ class InicioController extends GetxController {
   final _userRepository = Get.find<MyUserRepository>();
   //
   Rx<UsuarioModel?> usuario = Rx(null);
-  Future<void> getUsuarioActual() async {
+  Future<void> _getUsuarioActual() async {
     usuario.value = await _userRepository.getUsuario();
   }
 
-  /* FORMULARIO PARA PEDIR EL GAS */
-  //Variables para el form
-  final formKey = GlobalKey<FormState>();
-  final direccionTextoController = TextEditingController();
-  final notaTextoController = TextEditingController();
-  var cantidadTextoController = TextEditingController();
-  //Repositorio de pedidos
-  final _pedidoRepository = Get.find<PedidoRepository>();
-  //Metodos para insertar un nuevo pedido
-  // //Mientras se inserta el pedido mostrar circuleprobres se carga si o no
-  final procensandoElNuevoPedido = RxBool(false);
-  insertarPedido() async {
-    try {
-      procensandoElNuevoPedido.value = true;
-      const idProducto = "glp";
-      final idCliente = usuario.value?.cedula ?? '';
-      const idRepartidor = "SinAsignar";
-      final direccion = Direccion(
-          latitud: posicionPedido.value.latitude,
-          longitud: posicionPedido.value.longitude);
-
-      const idEstadoPedido = 'estado1';
-      final diaEntregaPedido = diaDeEntregaPedidoController.value.text;
-      final notaPedido = notaTextoController.text;
-      final cantidadPedido = int.parse(cantidadTextoController.text);
-      //
-      PedidoModel pedidoModel = PedidoModel(
-        idProducto: idProducto,
-        idCliente: idCliente,
-        idRepartidor: idRepartidor,
-        direccion: direccion,
-        idEstadoPedido: idEstadoPedido,
-        fechaHoraPedido: Timestamp.now(),
-        diaEntregaPedido: diaEntregaPedido,
-        notaPedido: notaPedido,
-        totalPedido: 555555,
-        cantidadPedido: cantidadPedido,
-      );
-
-      await _pedidoRepository.insertPedido(pedidoModel: pedidoModel);
-      _inicializarDatos();
-      //Get.back();
-      _cargarProcesoPedido();
-      Get.snackbar('Nuevo pedido', 'Su pedido se registro con éxito.',
-       
-          backgroundColor: AppTheme.blueDark,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-          borderRadius: 0);
-    } on FirebaseException catch (e) {
-      Get.snackbar('Mensaje', e.message ?? 'Se produjo un error inesperado.',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: AppTheme.blueDark,
-          colorText: Colors.white,
-          borderRadius: 0);
-    }
-    procensandoElNuevoPedido.value = false;
+  void _cargarDatosIniciales() {
+    _getUsuarioActual();
   }
 
-/* MANEJO DE RUTAS DEL MENU */
-  //Ir a la pantalla de agenda
-  cargarAgenda() async {
+  /* MANEJO DE PANTALLA POR NAVEGACION BOTTOM*/
+  RxInt indexPantallaSeleccionada = 0.obs;
+  final List pantallasInicioRepartidor = [
+    {"screen": const ExplorarRepartidorPage()},
+    {"screen": const IniciarRecorridoRepartidor()},
+    //  {"screen": const PedidosPage()},
+    {"screen": const Center(child: CircularProgressIndicator())},
+  ];
+
+//Metodo que escucha el onTap de las pantallas
+  pantallaSeleccionadaOnTap(int index, BuildContext context) {
+    if (indexPantallaSeleccionada.value == 0) {
+      _cargarExplorarPage();
+    }
+    if (indexPantallaSeleccionada.value == 2 && index == 2) {
+    } else {
+      if (indexPantallaSeleccionada.value == 2) {
+        Navigator.pop(context);
+      }
+      indexPantallaSeleccionada.value = index;
+      if (index == 2) {
+        _cargarPedidosPage();
+        print(2);
+      }
+    }
+  }
+
+  _cargarExplorarPage() async {
     try {
       await Future.delayed(const Duration(seconds: 1));
-      Get.offNamed(AppRoutes.agenda);
+      Get.offNamed(AppRoutes.inicio);
     } catch (e) {
-      // ignore: avoid_print
       print(e);
     }
   }
 
-  cargarLogin() async {
+  _cargarPedidosPage() async {
     try {
       await Future.delayed(const Duration(seconds: 1));
-      Get.offNamed(AppRoutes.login);
+      Get.offNamed(AppRoutes.pedidos);
     } catch (e) {
-      // ignore: avoid_print
       print(e);
     }
   }
-
-  cerrarSesion() async {
-    await FirebaseAuth.instance.signOut();
-    cargarLogin;
-  }
-
-  /* GOOGLE MAPS */
-  //Variables
-
-  final Map<MarkerId, Marker> _markers = {};
-
-  Set<Marker> get markers => _markers.values.toSet();
-
-  //
-  final _markersController = StreamController<String>.broadcast();
-  Stream<String> get onMarkerTap => _markersController.stream;
-
-  //
-  //final posicionInicial = LatLng(-0.2053476, -79.4894387).obs;
-  final posicionInicial = const LatLng(-0.2053476, -79.4894387).obs;
-  final posicionMarcadorCliente = const LatLng(-0.2053476, -79.4894387).obs;
-  final posicionPedido = const LatLng(-0.2053476, -79.4894387).obs;
-
-  //final initialCameraPosition =    const CameraPosition(target: LatLng(-0.2053476, -79.4894387), zoom: 15);
+  /* MAPA PARA LA OPCION DE EXPLORACION*/
 
   //Cambiar el estilo de mapa
   onMapaCreated(GoogleMapController controller) {
     controller.setMapStyle(estiloMapa);
-
+    //
     //Cargar marcadores
     cargarMarcadores();
+    _cargarMarcadoresPedidos();
   }
 
-//
-  void onTap(LatLng position) {
-    posicionInicial.value = position;
-    posicionMarcadorCliente.value = position;
-    // final id = _markers.length.toString(); para generar muchos markers
-//Actualizar las posiciones del mismo marker la cedula del usuario conectado como ID
-    final id = usuario.value?.cedula ?? 'MakerIdCliente';
+  //Ubicacion actual
+  Future<LocationData?> currentLocation() async {
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
 
+    Location location = Location();
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        return null;
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return null;
+      }
+    }
+
+    return await location.getLocation();
+  }
+
+  Future<void> cargarMarcadorRepartidor(LatLng posicion) async {
+    //Actualizar las posiciones del mismo marker la cedula del usuario conectado como ID
+    final id = usuario.value?.cedula ?? 'MakerIdRepartidor';
+    //
     final markerId = MarkerId(id);
 
+    //Marcador repartidor personalizado
+    BitmapDescriptor _markerbitmap = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(),
+      "assets/icons/gpsrepartidor.png",
+    );
     final marker = Marker(
-        markerId: markerId,
-        position: posicionInicial.value,
-        draggable: true,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-        onDragEnd: (newPosition) {
-          posicionInicial.value = newPosition;
-          _getDireccionXLatLng(newPosition);
-        });
-//
-
-    _markers.clear();
-//
+      markerId: markerId,
+      position: posicion,
+      draggable: false,
+      icon: _markerbitmap,
+    );
     _markers[markerId] = marker;
-    _getDireccionXLatLng(posicionMarcadorCliente.value);
+
+    print("REPARTIDOR\n");
   }
 
-  // UBICACION ACTUAL
+  //Marcadores para visualizar los pedidos
+  final _pedidoRepository = Get.find<PedidoRepository>();
+  final _personaRepository = Get.find<PersonaRepository>();
 
-  //Variables
-  var direccion = 'Buscando dirección...'.obs;
+  Future<void> _cargarMarcadoresPedidos() async {
+    //Marcador pedido
+    BitmapDescriptor _marcadorPedido = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(),
+      "assets/icons/marcadorpedido.png",
+    );
+//Actualizar las posiciones del mismo marker la cedula del usuario conectado como ID
 
-  late StreamSubscription<Position> streamSubscription;
+    //
+    final listaPedidos = await _pedidoRepository.getPedidos();
+    print(listaPedidos?.length);
+
+    listaPedidos?.forEach((element) async {
+      final nombreCliente = await _personaRepository.getNombresPersonaPorCedula(
+          cedula: element.idCliente);
+      print(nombreCliente);
+      //final id = element.idCliente;
+      final id = _markers.length.toString();
+      print("- $id\n");
+      final markerId = MarkerId(id);
+      final posicion =
+          LatLng(element.direccion.latitud, element.direccion.longitud);
+
+      final marker = Marker(
+          markerId: markerId,
+          position: posicion,
+          draggable: false,
+          icon: _marcadorPedido,
+          infoWindow: InfoWindow(
+              title: nombreCliente,
+              snippet:
+                  'Para ${element.diaEntregaPedido},  ${element.cantidadPedido} cilindro/s de gas.',
+              onTap: () {
+                print(_markers.length);
+                //Marcadores para pedidos 2 (infoWindow onTap)
+              }));
+      _markers[markerId] = marker;
+    });
+    print("PEDIDOS\n");
+  }
+
+  //** EXPLORAR MAPA  */
+  final posicionInicial = const LatLng(-0.2053476, -79.4894387).obs;
+  final posicionMarcadorCliente = const LatLng(-0.2053476, -79.4894387).obs;
+  final posicionPedido = const LatLng(-0.2053476, -79.4894387).obs;
 
   //Obtener ubicacion
-  RxBool servicioHbilitado = false.obs;
-
   getLocation() async {
+    bool servicioHbilitado;
+
     LocationPermission permiso;
 
     //Esta habilitado el servicio?
-    servicioHbilitado.value = await Geolocator.isLocationServiceEnabled();
-    if (!servicioHbilitado.value) {
-      //si la ubicacion esta deshabilitado tiene activarse
+    servicioHbilitado = await Geolocator.isLocationServiceEnabled();
+    if (!servicioHbilitado) {
+      //si la ubicacion esta deshabilitado tieneactivarse
       await Geolocator.openLocationSettings();
       return Future.error('Servicio de ubicación deshabilitada.');
     }
@@ -237,28 +246,6 @@ class InicioController extends GetxController {
     });
   }
 
-  String _getDireccion(Placemark lugar) {
-    //
-    if (lugar.subLocality?.isEmpty == true) {
-      return lugar.street.toString();
-    } else {
-      return '${lugar.street}, ${lugar.subLocality}';
-    }
-  }
-
-  Future<void> _getDireccionXLatLng(LatLng posicion) async {
-    List<Placemark> placemark =
-        await placemarkFromCoordinates(posicion.latitude, posicion.longitude);
-    Placemark lugar = placemark[0];
-
-//
-    direccion.value = _getDireccion(lugar);
-    direccionTextoController.text = direccion.value;
-    posicionPedido.value = posicion;
-  }
-
-  Set<Marker> marcadores = {};
-
   void cargarMarcadores() {
     //Marcador cliente
     posicionMarcadorCliente.value = posicionInicial.value;
@@ -269,61 +256,18 @@ class InicioController extends GetxController {
     final markerId = MarkerId(id);
     // marcadores.add(Marker(
     final marker = Marker(
-        markerId: markerId,
-        position: posicionMarcadorCliente.value,
-        draggable: true,
-        //212.2
-        icon: BitmapDescriptor.defaultMarkerWithHue(208),
-        onDragEnd: (newPosition) {
+      markerId: markerId,
+      position: posicionMarcadorCliente.value,
+      draggable: false,
+      //212.2
+      icon: BitmapDescriptor.defaultMarkerWithHue(208),
+      /*onDragEnd: (newPosition) {
           // ignore: avoid_print
           posicionMarcadorCliente.value = newPosition;
           _getDireccionXLatLng(posicionMarcadorCliente.value);
-        });
+        }*/
+    );
     _markers[markerId] = marker;
     //
-    _getDireccionXLatLng(posicionMarcadorCliente.value);
   }
-
-  /*  DIA PARA AGENDAR EN FORM PEDIR GAS */
-  final diaDeEntregaPedidoController = TextEditingController().obs;
-  final itemSeleccionadoDia = 0.obs;
-  //
-  void _cargarDiaYCantidadInicial() {
-    diaDeEntregaPedidoController.value.text = "Ahora";
-    cantidadTextoController.text = "1";
-  }
-
-  final diaInicialSeleccionado = 0.obs;
-  void guardarDiaDeEntregaPedido() {
-    if (itemSeleccionadoDia.value == 0) {
-      diaDeEntregaPedidoController.value.text = "Ahora";
-      diaInicialSeleccionado.value = 0;
-    } else {
-      diaDeEntregaPedidoController.value.text = "Mañana";
-      diaInicialSeleccionado.value = 1;
-    }
-  }
-
-//Cuando el pedido se crea
-  _cargarProcesoPedido() async {
-    try {
-      await Future.delayed(const Duration(seconds: 1));
-      Get.offNamed(AppRoutes.procesopedido);
-    } catch (e) {
-      // ignore: avoid_print
-      print(e);
-    }
-  }
-
-  void _inicializarDatos() {
-    //TODO: creo que no
-  }
-
-//TODO: Obtener el horario desde la BD
-//TODO: Ajustar horario
-
-//TODO: Optimizar variables para fecha y hora
-//TODO: Horarios de atencion
-//TODO: FechaHoraActual para comparar que no sea local sino de red
-
 }

@@ -12,7 +12,6 @@ class AppRoutes {
   static const permission = "/permission";
     static const procesopedido = "/procesopedido";
 
-    //REPARTIDOR
-      static const iniciorepartidor = "/iniciorepartidor";
+     
       static const pedidos= "/pedidos";
 }

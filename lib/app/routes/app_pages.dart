@@ -5,11 +5,11 @@ import 'package:gasjm/app/modules/agenda/cliente/local_widgets/editar/editar_pag
 import 'package:gasjm/app/modules/identificacion/identificacion_binding.dart';
 import 'package:gasjm/app/modules/identificacion/identificacion_page.dart';
 import 'package:gasjm/app/modules/inicio/inicio_binding.dart';
-import 'package:gasjm/app/modules/inicio/inicio_page.dart';
-import 'package:gasjm/app/modules/inicio/proceso_pedido/proceso_pedido_binding.dart';
-import 'package:gasjm/app/modules/inicio/proceso_pedido/proceso_pedido_page.dart'; 
+import 'package:gasjm/app/modules/inicio/inicio_page.dart'; 
 import 'package:gasjm/app/modules/login/login_binding.dart';
-import 'package:gasjm/app/modules/login/login_page.dart'; 
+import 'package:gasjm/app/modules/login/login_page.dart';
+import 'package:gasjm/app/modules/pedidos/pedidos_binding.dart';
+import 'package:gasjm/app/modules/pedidos/pedidos_page.dart'; 
 import 'package:gasjm/app/modules/registrar/registrar_binding.dart';
 import 'package:gasjm/app/modules/registrar/registrar_page.dart';
 import 'package:gasjm/app/modules/request_permission/request_permission_binding.dart';
@@ -59,17 +59,16 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.inicio,
-      page: () => const InicioPage(),
+      page: () =>  InicioPage(),
       binding: InicioBinding(),
       transition: Transition.fade,
       transitionDuration: const Duration(milliseconds: 500),
-    ),
-    GetPage(
-      name: AppRoutes.procesopedido,
-      page: () => const ProcesoPedidoPage(),
-      binding: ProcesoPedidoBinding(),
-      transition: Transition.fade,
-      transitionDuration: const Duration(milliseconds: 500),
+    ), 
+     GetPage(
+      name: AppRoutes.pedidos,
+      page: () => const PedidosPage(),
+      binding: PedidosBinding(),
+      transition: Transition.noTransition
     ),
     GetPage(
       name: AppRoutes.agenda,

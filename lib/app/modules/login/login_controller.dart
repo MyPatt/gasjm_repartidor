@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gasjm/app/core/theme/app_theme.dart';
-import 'package:gasjm/app/core/utils/mensajes.dart';
+import 'package:gasjm/app/core/theme/app_theme.dart'; 
 import 'package:gasjm/app/data/repository/authenticacion_repository.dart';
 
 import 'package:get/get.dart';
@@ -52,45 +51,8 @@ class LoginController extends GetxController {
   //** Autenticacion para iniciar sesion **
   //Dependencia de AutenticacionRepository
   final _autenticacioRepository = Get.find<AutenticacionRepository>();
-  //Existe algun error si o no
-  final errorParaSocialMedia = Rx<String?>(null);
-  //Se cago si o no
-  final cargandoParaSocialMedia = RxBool(false);
-
-//Iniciar sesion con Google
-  Future<void> iniciarSesionConGoogle() =>
-      _iniciarSesion(_autenticacioRepository.iniciarSesionConGoogle);
-
-  //Metodo que rige para iniciar sesion con el progress
-  Future<void> _iniciarSesion(
-      Future<AutenticacionUsuario?> Function() auxUsuario) async {
-    try {
-      cargandoParaSocialMedia.value = true;
-      errorParaSocialMedia.value = null;
-
-      await auxUsuario();
-      //
-      // Mensajes.showToastBienvenido("Bienvenido...");
-      Get.snackbar(
-        '',
-        '¡Bienvenido a GasJM!',
-        duration: const Duration(seconds: 4),
-        backgroundColor: AppTheme.blueDark,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        borderRadius: 0,
-        
-      );
-    } on FirebaseException catch (e) {
-      //:TODO OJO implementar error
-      errorParaSocialMedia.value = e.code;
-    } catch (e) {
-      errorParaSocialMedia.value =
-          "Error de inicio de sesión. Inténtalo de nuevo.";
-    }
-    cargandoParaSocialMedia.value = false;
-  }
-
+ 
+ 
 //Inicar sesion con correo
 
   //Existe algun error si o no
