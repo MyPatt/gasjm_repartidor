@@ -39,7 +39,7 @@ class MenuLateral extends StatelessWidget {
             Align(
               alignment: Alignment.center,
               child: Text(
-                _.usuario.value?.perfil ?? 'Usuario',
+                _.usuario.value?.idPerfil ?? 'Repartidor',
                 style: const TextStyle(color: Colors.black38),
               ),
             ),

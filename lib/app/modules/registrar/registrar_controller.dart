@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:gasjm/app/core/theme/app_theme.dart'; 
-import 'package:gasjm/app/data/models/usuario_model.dart';
+import 'package:flutter/material.dart'; 
+import 'package:gasjm/app/core/utils/mensajes.dart';
+import 'package:gasjm/app/data/models/persona_model.dart'; 
 import 'package:gasjm/app/data/repository/authenticacion_repository.dart';
 import 'package:gasjm/app/routes/app_routes.dart';
 import 'package:get/get.dart';
@@ -19,14 +19,19 @@ class RegistrarController extends GetxController {
   final apellidoTextoController = TextEditingController();
   final correoElectronicoTextoController = TextEditingController();
   final contrasenaTextoController = TextEditingController();
+
   //Variable para guardar la cedula
   late String cedula = '';
   //late String perfil = '';
-  final perfil = "Repartidor";
-//  UsuarioModel usuario;
+  final perfil = "repartidor";
+
+  //Existe algun error si o no
+  final errorParaCorreo = Rx<String?>(null);
+  //Se cago si o no
+  final cargandoParaCorreo = RxBool(false);
+
   @override
   void onInit() {
- 
     _obtenerCedulaYPerfil();
 
     super.onInit();
@@ -53,7 +58,7 @@ class RegistrarController extends GetxController {
       await Future.delayed(const Duration(seconds: 1));
       Get.toNamed(AppRoutes.login);
     } catch (e) {
-      print(e);
+      // print(e);
     }
   }
 
@@ -67,10 +72,17 @@ class RegistrarController extends GetxController {
     final nombre = nombreTextoController.text;
     final apellido = apellidoTextoController.text;
     final correo = correoElectronicoTextoController.text;
-    final contrasena = contrasenaTextoController.text; //Guardar en model
-    UsuarioModel usuarioDatos = UsuarioModel(
-        nombre, apellido, correo, contrasena,
-        cedula: cedula, perfil: perfil);
+    final contrasena = contrasenaTextoController.text;
+
+    //Guardar en model
+    PersonaModel usuarioDatos = PersonaModel(
+        cedulaPersona: cedula,
+        nombrePersona: nombre,
+        apellidoPersona: apellido,
+        idPerfil: perfil,
+        contrasenaPersona: contrasena,
+        correoPersona: correo);
+
 //
     try {
       cargandoParaCorreo.value = true;
@@ -83,16 +95,13 @@ class RegistrarController extends GetxController {
       _removerCedulaYPerfil();
 
       //Mensaje de ingreso
-      //Mensajes.showToastBienvenido("Bienvenido...");
-        Get.snackbar(
-        'Mensaje ',
-         '¡Bienvenido a GasJM!',
-        duration: const Duration(seconds: 4),
-        backgroundColor: AppTheme.blueDark,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        borderRadius: 0
-      );
+      Mensajes.showGetSnackbar(
+          titulo: 'Mensaje',
+          mensaje: '¡Bienvenido a GasJM!',
+          icono: const Icon(
+            Icons.waving_hand_outlined,
+            color: Colors.white,
+          ));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         errorParaCorreo.value = 'La contraseña es demasiado débil';
@@ -100,8 +109,7 @@ class RegistrarController extends GetxController {
         errorParaCorreo.value =
             'La cuenta ya existe para ese correo electrónico';
       } else {
-        errorParaCorreo.value =
-            'Error de inicio de sesión. Inténtalo de nuevo.';
+        errorParaCorreo.value = "Se produjo un error inesperado.";
       }
     }
     cargandoParaCorreo.value = false;
@@ -111,22 +119,16 @@ class RegistrarController extends GetxController {
   _obtenerCedulaYPerfil() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    final s = await prefs.getString("cedula_usuario");
+    final s = prefs.getString("cedula_usuario");
     //final p = await prefs.getString("perfil_usuario");
     cedula = s ?? '';
     //perfil = p ?? '';
   }
 
-  
   //Eliminar la cedula del usuario de forma local
   _removerCedulaYPerfil() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove("cedula_usuario");
     //  await prefs.remove("perfil_usuario");
   }
-
-  //Existe algun error si o no
-  final errorParaCorreo = Rx<String?>(null);
-  //Se cago si o no
-  final cargandoParaCorreo = RxBool(false);
 }

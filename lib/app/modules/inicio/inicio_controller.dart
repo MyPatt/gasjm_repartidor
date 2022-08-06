@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:gasjm/app/core/utils/map_style.dart';
+import 'package:gasjm/app/data/models/persona_model.dart';
 import 'package:gasjm/app/data/models/usuario_model.dart';
 import 'package:gasjm/app/data/repository/pedido_repository.dart';
 import 'package:gasjm/app/data/repository/persona_repository.dart';
 import 'package:gasjm/app/data/repository/usuario_repository.dart';
+import 'package:gasjm/app/global_widgets/dialogs/dialogs.dart';
 import 'package:gasjm/app/modules/inicio/widgets/ir_content.dart';
 import 'package:gasjm/app/modules/inicio/widgets/navegacion_content.dart';
 import 'package:gasjm/app/routes/app_routes.dart';
@@ -48,11 +50,11 @@ class InicioController extends GetxController {
   /* DATOS DEL USUARIO */
   /* Variables para obtener datos del usuario */
   //Repositorio de usuario
-  final _userRepository = Get.find<MyUserRepository>();
+
   //
-  Rx<UsuarioModel?> usuario = Rx(null);
+  Rx<PersonaModel?> usuario = Rx(null);
   Future<void> _getUsuarioActual() async {
-    usuario.value = await _userRepository.getUsuario();
+    usuario.value = await _personaRepository.getUsuario();
   }
 
   void _cargarDatosIniciales() {
@@ -110,7 +112,7 @@ class InicioController extends GetxController {
     controller.setMapStyle(estiloMapa);
     //
     //Cargar marcadores
-    cargarMarcadores();
+    _cargarMarcadorRepartidor();
     _cargarMarcadoresPedidos();
   }
 
@@ -143,7 +145,7 @@ class InicioController extends GetxController {
 
   Future<void> cargarMarcadorRepartidor(LatLng posicion) async {
     //Actualizar las posiciones del mismo marker la cedula del usuario conectado como ID
-    final id = usuario.value?.cedula ?? 'MakerIdRepartidor';
+    final id = usuario.value?.cedulaPersona ?? 'MakerIdRepartidor';
     //
     final markerId = MarkerId(id);
 
@@ -200,13 +202,13 @@ class InicioController extends GetxController {
               snippet:
                   'Para ${element.diaEntregaPedido},  ${element.cantidadPedido} cilindro/s de gas.',
               onTap: () {
-                print(_markers.length);
-                //Marcadores para pedidos 2 (infoWindow onTap)
+               
               }));
       _markers[markerId] = marker;
     });
-    print("PEDIDOS\n");
   }
+
+  
 
   //** EXPLORAR MAPA  */
   final posicionInicial = const LatLng(-0.2053476, -79.4894387).obs;
@@ -246,12 +248,12 @@ class InicioController extends GetxController {
     });
   }
 
-  void cargarMarcadores() {
+  void _cargarMarcadorRepartidor() {
     //Marcador cliente
     posicionMarcadorCliente.value = posicionInicial.value;
 
 //Actualizar las posiciones del mismo marker la cedula del usuario conectado como ID
-    final id = usuario.value?.cedula ?? 'MakerIdCliente';
+    final id = usuario.value?.cedulaPersona ?? 'MakerIdRepartidor';
 //
     final markerId = MarkerId(id);
     // marcadores.add(Marker(

@@ -22,7 +22,7 @@ class ContentMap extends StatelessWidget {
                       const LatLng(-0.2053476, -79.4894387)
                   ? const Center(child: CircularProgressIndicator())
                   : GoogleMap(
-                      markers: Set.of(_.markers),
+                      markers:  _.markers,
                       onMapCreated: _.onMapaCreated,
                       initialCameraPosition: CameraPosition(
                           target: _.posicionInicial.value, zoom: 15),

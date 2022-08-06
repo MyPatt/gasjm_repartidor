@@ -13,6 +13,7 @@ class InicioPage extends StatelessWidget {
 //
   @override
   Widget build(BuildContext context) {
+  
     return GetBuilder<InicioController>(
         builder: (_) => Scaffold(
             //Menú deslizable a la izquierda con opciones del  usuario

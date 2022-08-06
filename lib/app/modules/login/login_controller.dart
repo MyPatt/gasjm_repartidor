@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gasjm/app/core/theme/app_theme.dart'; 
+import 'package:gasjm/app/core/theme/app_theme.dart';
+import 'package:gasjm/app/core/utils/mensajes.dart'; 
 import 'package:gasjm/app/data/repository/authenticacion_repository.dart';
 
 import 'package:get/get.dart';
-
-import 'package:fluttertoast/fluttertoast.dart';
+ 
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginController extends GetxController {
@@ -20,13 +20,11 @@ class LoginController extends GetxController {
   final correoTextoController = TextEditingController();
   final contrasenaTextoController = TextEditingController();
 
-  bool isProcessing = false;
-  //Toast para notificar el inicio de sesion
-  Fluttertoast? flutterToast;
+  bool estadoProceso = false;
+   
 //
   @override
-  void onInit() {
-    flutterToast = Fluttertoast();
+  void onInit() { 
     _obtenerCorreo();
 
     super.onInit();
@@ -69,18 +67,10 @@ class LoginController extends GetxController {
         correoTextoController.text,
         contrasenaTextoController.value.text,
       );
+      
       //
-      //Mensajes.showToastBienvenido("Bienvenido...");
-      Get.snackbar(
-        'Mensaje',
-          '¡Bienvenido a GasJM!',
-        duration: const Duration(seconds: 4),
-        backgroundColor: AppTheme.blueDark,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        borderRadius: 0,
-        
-      );
+      Mensajes.showGetSnackbar(titulo: 'Mensaje', mensaje: '¡Bienvenido a GasJM!',icono: const Icon(Icons.waving_hand_outlined,color: Colors.white,)); 
+ 
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         errorParaCorreo.value =
