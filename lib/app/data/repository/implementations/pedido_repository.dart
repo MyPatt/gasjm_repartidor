@@ -23,6 +23,8 @@ class PedidoRepositoryImpl extends PedidoRepository {
       _provider.getPedidoPorField(field: field, dato: dato);
 
   @override
-  Future<void> updatePedido({required PedidoModel pedidoModel}) =>
-      _provider.updatePedido(pedidoModel: pedidoModel);
+  Future<void> updateEstadoPedido(
+          {required String idPedido, required String estadoPedido}) =>
+      _provider.updateEstadoPedido(
+          idPedido: idPedido, estadoPedido: estadoPedido);
 }

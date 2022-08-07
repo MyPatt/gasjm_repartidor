@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PedidoModel {
-  final String? idPedido;
+  final String idPedido;
   final String idProducto;
   final String idCliente;
   final String idRepartidor;
@@ -19,7 +19,7 @@ class PedidoModel {
   //
 
   PedidoModel({
-    this.idPedido,
+   required this.idPedido,
     required this.idProducto,
     required this.idCliente,
     required this.idRepartidor,

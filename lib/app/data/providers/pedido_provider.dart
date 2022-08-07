@@ -1,22 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:gasjm/app/data/models/pedido_model.dart';
 
 class PedidoProvider {
   //Instancia de firestore
-  final _firestoreInstance = FirebaseFirestore.instance; 
+  final _firestoreInstance = FirebaseFirestore.instance;
 
   //
   Future<void> insertPedido({required PedidoModel pedidoModel}) async {
-    await _firestoreInstance.collection('pedido').add(pedidoModel.toJson());
+    final resultado =
+        await _firestoreInstance.collection('pedido').add(pedidoModel.toJson());
+
+    await _firestoreInstance
+        .collection("pedido")
+        .doc(resultado.id)
+        .update({"idPedido": resultado.id});
   }
   //
 
-  Future<void> updatePedido({required PedidoModel pedidoModel}) async {
+  Future<void> updateEstadoPedido({required String idPedido,required String estadoPedido}) async {
     await _firestoreInstance
         .collection('pedido')
-        .doc(pedidoModel.idPedido)
-        .update(pedidoModel.toJson());
+        .doc(idPedido)
+        .update({"idEstadoPedido":estadoPedido});
   }
 
   //

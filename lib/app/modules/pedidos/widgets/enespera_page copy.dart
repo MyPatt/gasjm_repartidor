@@ -7,24 +7,23 @@ import 'package:gasjm/app/global_widgets/text_description.dart';
 import 'package:gasjm/app/global_widgets/text_subtitle.dart';
 import 'package:gasjm/app/modules/pedidos/pedidos_controller.dart';
 import 'package:get/get.dart';
-
+/*
 class PedidosEnEsperaPage extends StatelessWidget {
- 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<PedidosController>(
         builder: (_) => Obx(() => _.cargando.value == true
             ? const Center(child: CircularProgressIndicator())
             : CustomScrollView(slivers: <Widget>[
-               /* SliverList(
+                /* SliverList(
                     delegate: SliverChildListDelegate(
                         _buildList(_.listaLength.value, _)))*/
                 SliverList(
-                    delegate: SliverChildListDelegate(
-                      _buildListPedidosEnEspera(
+                    delegate: SliverChildListDelegate(_buildListPedidosEnEspera(
                         _.pedidosenespera,
                         _.nombresClientes,
-                        _.direccionClientes,_))),
+                        _.direccionClientes,
+                        _))),
               ])));
   }
 
@@ -43,23 +42,28 @@ class PedidosEnEsperaPage extends StatelessWidget {
     }*/
     List<Widget> listItems = _buildListPedidosEnEspera(
         pedidosController.pedidosenespera,
-        pedidosController.nombresClientes,
-        pedidosController.direccionClientes,
+        pedidosController.nombresClientesEnEspera,
+        pedidosController.direccionClientesEnEspera,
         pedidosController);
     return listItems;
   }
 
   //List<Widget> _buildListPedidosEnEsperaa(List<PedidoModel> value) {}
 
-  List<Widget> _buildListPedidosEnEspera(List<PedidoModel> lista,
-      List<String>? nombresClientes, List<String>? direccionClientes, PedidosController pedidosController) {
+  List<Widget> _buildListPedidosEnEspera(
+      List<PedidoModel> lista,
+      List<String>? nombresClientes,
+      List<String>? direccionClientes,
+      PedidosController pedidosController) {
     List<Widget> listItemsPedidosEnEspera = [];
+
     try {
+    
       for (int i = 0; i < lista.length; i++) {
         listItemsPedidosEnEspera.add(Padding(
             padding: const EdgeInsets.all(8.0),
-            child: _cardPedido(
-                lista[i], nombresClientes?[i], direccionClientes?[i],pedidosController)));
+            child: _cardPedido(lista[i], nombresClientes?[i],
+                direccionClientes?[i], pedidosController)));
         /* child: Text('Sliver Item ${i.toString()}',
             style: const TextStyle(fontSize: 22.0))));*/
       }
@@ -69,7 +73,8 @@ class PedidosEnEsperaPage extends StatelessWidget {
     return listItemsPedidosEnEspera;
   }
 
-  Widget _cardPedido(PedidoModel pedido, nombreCliente, direccionCliente, PedidosController controller) {
+  Widget _cardPedido(PedidoModel pedido, nombreCliente, direccionCliente,
+      PedidosController controller) {
     return Card(
       shape: Border.all(color: AppTheme.light, width: 0.5),
       child: Padding(
@@ -120,4 +125,4 @@ class PedidosEnEsperaPage extends StatelessWidget {
     );
   }
 }
-//TODO: Gestionar pedidos como repartidor 2 (Pedidos en espera loaddata) >ultimo push ~filtros, funciones botones, optimizar loaddatos
+//TODO: Gestionar pedidos como repartidor 2 (Pedidos en espera loaddata) >ultimo push ~filtros, funciones botones, optimizar loaddatos*/
