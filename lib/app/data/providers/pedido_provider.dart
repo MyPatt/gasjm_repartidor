@@ -31,7 +31,9 @@ class PedidoProvider {
 
   //
   Future<List<PedidoModel>?> getPedidos() async {
-    final resultado = await _firestoreInstance.collection('pedido').get();
+    final resultado = await _firestoreInstance.collection('pedido')
+       .where("idEstadoPedido", whereIn: ["estado1","estado2"])
+        .get();
 
     return (resultado.docs)
         .map((item) => PedidoModel.fromJson(item.data()))

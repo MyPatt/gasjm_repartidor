@@ -209,4 +209,38 @@ class PedidosController extends GetxController {
           duracion: const Duration(seconds: 2));
     }
   }
+
+ 
+    rechzarPedido(String idPedido) async {
+    try {
+      _pedidosRepository.updateEstadoPedido(
+          idPedido: idPedido, estadoPedido: "estado3");
+
+      Mensajes.showGetSnackbar(
+          titulo: "Mensaje",
+          mensaje: "Pedido rechazado con éxito,",
+          icono: const Icon(
+            Icons.check_circle_outline_outlined,
+            color: Colors.white,
+          ),
+          duracion: const Duration(seconds: 1));
+      print(_pedidosenespera.length);
+      print(_pedidosAceptados.length);
+      _cargarListaPedidosAceptados();
+      _cargarListaPedidosEnEspera();
+
+      print("Actualizado \n");
+      print(_pedidosenespera.length);
+      print(_pedidosAceptados.length);
+    } on FirebaseException catch (e) {
+      Mensajes.showGetSnackbar(
+          titulo: "Error",
+          mensaje: "Se produjo un error inesperado.",
+          icono: const Icon(
+            Icons.error_outline_outlined,
+            color: Colors.white,
+          ),
+          duracion: const Duration(seconds: 2));
+    }
+  }
 }

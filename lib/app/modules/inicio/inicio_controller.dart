@@ -248,8 +248,14 @@ class InicioController extends GetxController {
     });
   }
 
-  void _cargarMarcadorRepartidor() {
-    //Marcador cliente
+   _cargarMarcadorRepartidor() async{
+
+       //Marcador repartidos
+    BitmapDescriptor _marcadorRepartidor = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(),
+      "assets/icons/camiongasjm.png",
+    );
+    //Marcador posicion
     posicionMarcadorCliente.value = posicionInicial.value;
 
 //Actualizar las posiciones del mismo marker la cedula del usuario conectado como ID
