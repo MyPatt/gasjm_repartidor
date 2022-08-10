@@ -3,11 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gasjm/app/core/utils/map_style.dart';
 import 'package:gasjm/app/data/models/persona_model.dart';
-import 'package:gasjm/app/data/models/usuario_model.dart';
 import 'package:gasjm/app/data/repository/pedido_repository.dart';
 import 'package:gasjm/app/data/repository/persona_repository.dart';
-import 'package:gasjm/app/data/repository/usuario_repository.dart';
-import 'package:gasjm/app/global_widgets/dialogs/dialogs.dart';
 import 'package:gasjm/app/modules/inicio/widgets/ir_content.dart';
 import 'package:gasjm/app/modules/inicio/widgets/navegacion_content.dart';
 import 'package:gasjm/app/routes/app_routes.dart';
@@ -143,28 +140,6 @@ class InicioController extends GetxController {
     return await location.getLocation();
   }
 
-  Future<void> cargarMarcadorRepartidor(LatLng posicion) async {
-    //Actualizar las posiciones del mismo marker la cedula del usuario conectado como ID
-    final id = usuario.value?.cedulaPersona ?? 'MakerIdRepartidor';
-    //
-    final markerId = MarkerId(id);
-
-    //Marcador repartidor personalizado
-    BitmapDescriptor _markerbitmap = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(),
-      "assets/icons/gpsrepartidor.png",
-    );
-    final marker = Marker(
-      markerId: markerId,
-      position: posicion,
-      draggable: false,
-      icon: _markerbitmap,
-    );
-    _markers[markerId] = marker;
-
-    print("REPARTIDOR\n");
-  }
-
   //Marcadores para visualizar los pedidos
   final _pedidoRepository = Get.find<PedidoRepository>();
   final _personaRepository = Get.find<PersonaRepository>();
@@ -175,40 +150,46 @@ class InicioController extends GetxController {
       const ImageConfiguration(),
       "assets/icons/marcadorpedido.png",
     );
-//Actualizar las posiciones del mismo marker la cedula del usuario conectado como ID
 
+    //Marcador pedido
+    BitmapDescriptor _marcadorPedido2 = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(),
+      "assets/icons/marcadorpedido2.png",
+    );
+    BitmapDescriptor marcador = _marcadorPedido;
     //
     final listaPedidos = await _pedidoRepository.getPedidos();
-    print(listaPedidos?.length);
 
     listaPedidos?.forEach((element) async {
       final nombreCliente = await _personaRepository.getNombresPersonaPorCedula(
           cedula: element.idCliente);
-      print(nombreCliente);
+
       //final id = element.idCliente;
       final id = _markers.length.toString();
-      print("- $id\n");
+
       final markerId = MarkerId(id);
       final posicion =
           LatLng(element.direccion.latitud, element.direccion.longitud);
+
+      if (element.idEstadoPedido == 'estado2') {
+        marcador = _marcadorPedido2;
+      } else {
+        marcador = _marcadorPedido;
+      }
 
       final marker = Marker(
           markerId: markerId,
           position: posicion,
           draggable: false,
-          icon: _marcadorPedido,
+          icon: marcador,
           infoWindow: InfoWindow(
               title: nombreCliente,
               snippet:
                   'Para ${element.diaEntregaPedido},  ${element.cantidadPedido} cilindro/s de gas.',
-              onTap: () {
-               
-              }));
+              onTap: () {}));
       _markers[markerId] = marker;
     });
   }
-
-  
 
   //** EXPLORAR MAPA  */
   final posicionInicial = const LatLng(-0.2053476, -79.4894387).obs;
@@ -248,10 +229,10 @@ class InicioController extends GetxController {
     });
   }
 
-   _cargarMarcadorRepartidor() async{
-
-       //Marcador repartidos
-    BitmapDescriptor _marcadorRepartidor = await BitmapDescriptor.fromAssetImage(
+  _cargarMarcadorRepartidor() async {
+    //Marcador repartidos
+    BitmapDescriptor _marcadorRepartidor =
+        await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(),
       "assets/icons/camiongasjm.png",
     );
@@ -264,17 +245,17 @@ class InicioController extends GetxController {
     final markerId = MarkerId(id);
     // marcadores.add(Marker(
     final marker = Marker(
-      markerId: markerId,
-      position: posicionMarcadorCliente.value,
-      draggable: false,
-      //212.2
-      icon: BitmapDescriptor.defaultMarkerWithHue(208),
-      /*onDragEnd: (newPosition) {
+        markerId: markerId,
+        position: posicionMarcadorCliente.value,
+        draggable: false,
+        //212.2
+        icon: _marcadorRepartidor
+        /*onDragEnd: (newPosition) {
           // ignore: avoid_print
           posicionMarcadorCliente.value = newPosition;
           _getDireccionXLatLng(posicionMarcadorCliente.value);
         }*/
-    );
+        );
     _markers[markerId] = marker;
     //
   }
