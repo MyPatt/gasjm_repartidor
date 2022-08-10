@@ -12,9 +12,8 @@ class IniciarRecorridoRepartidor extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<InicioController>(
         builder: (_) => FutureBuilder<LocationData?>(
-            future: _.currentLocation(),
+            future: _.getUbicacionActual(),
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapchat) {
-              print(snapchat.hasData);
               if (snapchat.hasData) {
                 final LocationData currentLocation = snapchat.data;
                 /*  _.cargarMarcadorRepartidor(LatLng(
@@ -26,7 +25,7 @@ class IniciarRecorridoRepartidor extends StatelessWidget {
                       target: LatLng(currentLocation.latitude!,
                           currentLocation.longitude!),
                       zoom: 15),
-                  markers: _.markers,
+                  markers: _.marcadoresParaExplorar,
                   myLocationButtonEnabled: false,
                   compassEnabled: true,
                   zoomControlsEnabled: false,

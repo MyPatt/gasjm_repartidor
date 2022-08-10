@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:gasjm/app/core/theme/app_theme.dart';
-import 'package:gasjm/app/data/controllers/autenticacion_controller.dart';
-import 'package:gasjm/app/global_widgets/dialogs/progress_dialog.dart';
-import 'package:gasjm/app/global_widgets/repartidor/menu_controller.dart';
-import 'package:gasjm/app/modules/inicio/inicio_controller.dart';
+import 'package:gasjm/app/data/controllers/autenticacion_controller.dart'; 
+import 'package:gasjm/app/global_widgets/dialogs/progress_dialog.dart'; 
 
 import 'package:gasjm/app/routes/app_routes.dart';
 import 'package:get/get.dart';
 
 //Menú deslizable a la izquierda con opciones del  usuario
 class MenuLateral extends StatelessWidget {
-  MenuLateral({key}) : super(key: key);
+ const MenuLateral({key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<MenuController>(
-      builder: (_) => Drawer(
+    return   Drawer(
           child: Container(
         color: Colors.white,
         child: ListView(
@@ -37,11 +34,11 @@ class MenuLateral extends StatelessWidget {
                     color: AppTheme.blueDark, fontWeight: FontWeight.w500),
               ),
             ),
-            Align(
+            const Align(
               alignment: Alignment.center,
               child: Text(
-                _.usuario.value?.perfil ?? 'Repartidor',
-                style: const TextStyle(color: Colors.black38),
+                  'Repartidor',
+                style: TextStyle(color: Colors.black38),
               ),
             ),
             const SizedBox(
@@ -92,7 +89,7 @@ class MenuLateral extends StatelessWidget {
             ),
           ],
         ),
-      )),
+      )
     );
   }
 }

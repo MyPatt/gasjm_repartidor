@@ -1,21 +1,25 @@
 import 'dart:async';
 
-import 'package:gasjm/app/data/models/usuario_model.dart';
-import 'package:gasjm/app/data/repository/usuario_repository.dart';
+import 'package:gasjm/app/data/models/persona_model.dart';
+import 'package:gasjm/app/data/repository/persona_repository.dart';
 import 'package:get/get.dart';
 
-class MyUserController extends GetxController {
-  final _userRepository = Get.find<MyUserRepository>();
+class UsuarioController extends GetxController {
+  final _personaRepository = Get.find<PersonaRepository>();
 
-  Rx<UsuarioModel?> usuario = Rx(null);
+  //Para obtener datos del usuario conectado
 
+  Rx<PersonaModel?> usuario = Rx(null);
   @override
   void onInit() {
-    getMyUser();
+    _getUsuarioActual();
+    
     super.onInit();
   }
 
-  Future<void> getMyUser() async {
-    usuario.value = await _userRepository.getUsuario();
+  /* METODOS PARA OBTENER DATOS DEL USUARIO */
+
+  Future<void> _getUsuarioActual() async {
+    usuario.value = await _personaRepository.getUsuario();
   }
 }

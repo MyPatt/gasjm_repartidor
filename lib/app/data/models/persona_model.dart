@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class PersonaModel {
   PersonaModel(
       {required this.cedulaPersona,
@@ -33,7 +31,8 @@ class PersonaModel {
         direccionPersona: json["direccion"],
         celularPersona: json["celular"],
         fechaNaciPersona: json["fechaNacimiento"],
-        idPerfil: json["idPerfil"], contrasenaPersona: json['contrasena'],
+        idPerfil: json["idPerfil"],
+        contrasenaPersona: json['contrasena'],
       );
 
   Map<String, dynamic> toMap() => {
@@ -46,6 +45,6 @@ class PersonaModel {
         "celular": celularPersona,
         "fechaNacimiento": fechaNaciPersona,
         "idPerfil": idPerfil,
-        "contrasena":contrasenaPersona
+        "contrasena": contrasenaPersona
       };
 }

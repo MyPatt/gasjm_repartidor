@@ -18,7 +18,7 @@ void main() async {
   await Firebase.initializeApp();
   //Inyectando implentacion del repositorio de autenticacion
   Get.put<AutenticacionRepository>(AutenticacionRepositoryImpl());
-  Get.put<MyUserRepository>(MyUserRepositoryImp());
+
 //Agregar Providers y Repositories
   DependencyInjection.load();
 

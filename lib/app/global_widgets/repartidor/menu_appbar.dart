@@ -11,15 +11,7 @@ class MenuAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<InicioController>(
         builder: (_) => Row(
-              children: [
-                //Opcion agenda
-                IconButton(
-                    //
-                    // onPressed: showRatingDialog,calificarservicio
-                   // onPressed: _.cargarAgenda,
-                   onPressed: (){},
-                    icon: const Icon(Icons.calendar_today_outlined)),
-            
+              children: [ 
                 //Opcion historial
 
                 IconButton(
@@ -41,41 +33,3 @@ class MenuAppBar extends StatelessWidget {
             ));
   }
 }
-/**
- * 
-    void showRatingDialog() {
-      final ratingDialog = RatingDialog(
-          title: const Text(
-            "Calificar servicio",
-            style: TextStyle(color: AppTheme.blueDark),
-          ),
-          message: const Text(
-            "Seleccione la calificación del servicio ofrecido por el repartidor.",
-            style: TextStyle(color: Colors.black45, fontSize: 14),
-          ),
-          commentHint: "Comentario",
-          submitButtonText: 'Enviar',
-          initialRating: 4,
-          submitButtonTextStyle: Theme.of(context)
-              .textTheme
-              .headline6
-              ?.copyWith(
-                  color: AppTheme.blueBackground, fontWeight: FontWeight.w500),
-
-          // ignore: avoid_print
-          onCancelled: () => print('cancelled'),
-          onSubmitted: (response) {
-            // ignore: avoid_print
-            print('rating: ${response.rating}, comment: ${response.comment}');
-          });
-
-      showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (context) => Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ratingDialog,
-        ),
-      );
-    }
- */

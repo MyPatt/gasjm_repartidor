@@ -29,7 +29,7 @@ class PedidosPage extends StatelessWidget {
             ),
           ),*/
           //Menú deslizable a la izquierda con opciones del  usuario
-          drawer: MenuLateral(),
+          drawer: const MenuLateral(),
           //Barra de herramientas de opciones para  agenda y  historial
           appBar: AppBar(
             backgroundColor: AppTheme.blueBackground,
