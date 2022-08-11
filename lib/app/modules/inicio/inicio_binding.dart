@@ -6,7 +6,7 @@ class InicioBinding implements Bindings {
   @override
   void dependencies() {
     Get.lazyPut(() => InicioController());
-    
+
     Get.lazyPut(() => UsuarioController());
   }
 }

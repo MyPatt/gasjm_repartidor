@@ -25,6 +25,12 @@ class PedidosController extends GetxController {
   final RxList<PedidoModel> _pedidosAceptados = <PedidoModel>[].obs;
   RxList<PedidoModel> get pedidosAceptados => _pedidosAceptados;
 
+  final RxList<String> _nombresClientes = <String>[].obs;
+  RxList<String> get nombresClientes => _nombresClientes;
+
+  final RxList<String> _direccionClientes = <String>[].obs;
+  RxList<String> get direccionClientes => _direccionClientes;
+
   final RxList<String> _nombresClientesAceptados = <String>[].obs;
   RxList<String> get nombresClientesAceptados => _nombresClientesAceptados;
 
@@ -35,9 +41,9 @@ class PedidosController extends GetxController {
 
   @override
   void onInit() {
-    readGame();
     super.onInit();
 
+    _cargarListaPedidosEnEspera();
     _cargarListaPedidosAceptados();
   }
 
@@ -53,11 +59,50 @@ class PedidosController extends GetxController {
 
   /* METODOS PARA PEDIDOS EN ESPERA */
 
+  _cargarListaPedidosEnEspera() async {
+    try {
+      cargandoPedidosEnEspera.value = true;
+
+      _pedidosenespera.value = (await _pedidosRepository.getPedidoPorField(
+              field: 'idEstadoPedido', dato: 'estado1') ??
+          []);
+
+              _cargarNombresClienteParaPedidosEspera();
+    } on FirebaseException catch (e) {
+      Mensajes.showGetSnackbar(
+          titulo: "Error",
+          mensaje: "Se produjo un error inesperado.",
+          icono: const Icon(
+            Icons.error_outline_outlined,
+            color: Colors.white,
+          ));
+    }
+
+    cargandoPedidosEnEspera.value = false;
+  }
+
   //PEDIDOS EN ESPERA
-  Future<String> _getNombresCliente(String cedula) async {
-    final nombre =
-        await _personaRepository.getNombresPersonaPorCedula(cedula: cedula);
-    return nombre ?? '';
+Future<String> getNombresCliente( String cedula) async{
+  final nombre = await _personaRepository.getNombresPersonaPorCedula(
+            cedula: cedula);
+            return nombre??'';
+}
+
+  Future<void> _cargarNombresClienteParaPedidosEspera() async {
+    try {
+      _nombresClientes.clear();
+      _direccionClientes.clear();
+
+      for (var item in _pedidosenespera) {
+        final nombre = await _personaRepository.getNombresPersonaPorCedula(
+            cedula: item.idCliente);
+        _nombresClientes.add(nombre!);
+
+        final direccion = await getDireccionXLatLng(
+            LatLng(item.direccion.latitud, item.direccion.longitud));
+        _direccionClientes.add(direccion);
+      }
+    } catch (e) {}
   }
 
   Future<void> _cargarNombresClienteParaPedidosAceptados() async {
@@ -141,6 +186,37 @@ class PedidosController extends GetxController {
     }
   }
 
+  aceptarPedido(String idPedido) async {
+    try {
+      _pedidosRepository.updateEstadoPedido(
+          idPedido: idPedido, estadoPedido: "estado2");
+
+      Mensajes.showGetSnackbar(
+          titulo: "Mensaje",
+          mensaje: "Pedido aceptado con éxito,",
+          icono: const Icon(
+            Icons.check_circle_outline_outlined,
+            color: Colors.white,
+          ),
+          duracion: const Duration(seconds: 1));
+  
+  
+      _cargarListaPedidosEnEspera();
+      _cargarListaPedidosAceptados();
+
+ 
+    } on FirebaseException catch (e) {
+      Mensajes.showGetSnackbar(
+          titulo: "Error",
+          mensaje: "Se produjo un error inesperado.",
+          icono: const Icon(
+            Icons.error_outline_outlined,
+            color: Colors.white,
+          ),
+          duracion: const Duration(seconds: 2));
+    }
+  }
+
   rechzarPedido(String idPedido) async {
     try {
       _pedidosRepository.updateEstadoPedido(
@@ -157,84 +233,11 @@ class PedidosController extends GetxController {
       print(_pedidosenespera.length);
       print(_pedidosAceptados.length);
       _cargarListaPedidosAceptados();
+      _cargarListaPedidosEnEspera();
 
       print("Actualizado \n");
       print(_pedidosenespera.length);
       print(_pedidosAceptados.length);
-    } on FirebaseException catch (e) {
-      Mensajes.showGetSnackbar(
-          titulo: "Error",
-          mensaje: "Se produjo un error inesperado.",
-          icono: const Icon(
-            Icons.error_outline_outlined,
-            color: Colors.white,
-          ),
-          duracion: const Duration(seconds: 2));
-    }
-  }
-
-  /** */
-  RxList<PedidoModel> dataGame = <PedidoModel>[].obs;
-
-  void readGame() async {
-    try {
-      cargandoPedidosEnEspera.value = true;
-      final lista = (await _pedidosRepository.getPedidoPorField(
-              field: 'idEstadoPedido', dato: 'estado1')) ??
-          [];
-
-      //
-      for (var i = 0; i < lista.length; i++) {
-        final nombre = await _getNombresCliente(lista[i].idCliente);
-        final direccion = await getDireccionXLatLng(
-            LatLng(lista[i].direccion.latitud, lista[i].direccion.longitud));
-        lista[i].nombreUsuario = nombre;
-        lista[i].direccionUsuario = direccion;
-      }
-
-      dataGame.value = lista;
-    } on FirebaseException catch (e) {
-      Mensajes.showGetSnackbar(
-          titulo: "Error",
-          mensaje: "Se produjo un error inesperado.",
-          icono: const Icon(
-            Icons.error_outline_outlined,
-            color: Colors.white,
-          ));
-    }
-    cargandoPedidosEnEspera.value = false;
-  }
-
-  void deleteGame(String idPedido) async {
-    try {
-      await _pedidosRepository.updateEstadoPedido(
-          idPedido: idPedido, estadoPedido: "estado3");
-      readGame();
-    } on FirebaseException catch (e) {
-      Mensajes.showGetSnackbar(
-          titulo: "Error",
-          mensaje: "Se produjo un error inesperado.",
-          icono: const Icon(
-            Icons.error_outline_outlined,
-            color: Colors.white,
-          ));
-    }
-  }
-
-  aceptarPedido(String idPedido) async {
-    try {
-      _pedidosRepository.updateEstadoPedido(
-          idPedido: idPedido, estadoPedido: "estado2");
-
-      readGame();
-      Mensajes.showGetSnackbar(
-          titulo: "Mensaje",
-          mensaje: "Pedido aceptado con éxito,",
-          icono: const Icon(
-            Icons.check_circle_outline_outlined,
-            color: Colors.white,
-          ),
-          duracion: const Duration(seconds: 1));
     } on FirebaseException catch (e) {
       Mensajes.showGetSnackbar(
           titulo: "Error",
