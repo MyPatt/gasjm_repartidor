@@ -19,8 +19,9 @@ class PedidosController extends GetxController {
 
   final cargandoPedidosEnEspera = true.obs;
 
-  final RxList<PedidoModel> _pedidosenespera = <PedidoModel>[].obs;
-  RxList<PedidoModel> get listaPedidosEnEspera => _pedidosenespera;
+  //RxList<PedidoModel> dataGame = <PedidoModel>[].obs;
+  final RxList<PedidoModel> _listaPedidosEnEspera = <PedidoModel>[].obs;
+  RxList<PedidoModel> get listaPedidosEnEspera => _listaPedidosEnEspera;
 
   final RxList<PedidoModel> _pedidosAceptados = <PedidoModel>[].obs;
   RxList<PedidoModel> get pedidosAceptados => _pedidosAceptados;
@@ -35,7 +36,7 @@ class PedidosController extends GetxController {
 
   @override
   void onInit() {
-    readGame();
+    cargarListaPedidosEnEspera();
     super.onInit();
 
     _cargarListaPedidosAceptados();
@@ -53,12 +54,87 @@ class PedidosController extends GetxController {
 
   /* METODOS PARA PEDIDOS EN ESPERA */
 
-  //PEDIDOS EN ESPERA
+  void cargarListaPedidosEnEspera() async {
+    try {
+      cargandoPedidosEnEspera.value = true;
+      final lista = (await _pedidosRepository.getPedidoPorField(
+              field: 'idEstadoPedido', dato: 'estado1')) ??
+          [];
+
+      //
+      for (var i = 0; i < lista.length; i++) {
+        final nombre = await _getNombresCliente(lista[i].idCliente);
+        final direccion = await _getDireccionXLatLng(
+            LatLng(lista[i].direccion.latitud, lista[i].direccion.longitud));
+        lista[i].nombreUsuario = nombre;
+        lista[i].direccionUsuario = direccion;
+      }
+
+      _listaPedidosEnEspera.value = lista;
+    } on FirebaseException catch (e) {
+      Mensajes.showGetSnackbar(
+          titulo: "Error",
+          mensaje: "Se produjo un error inesperado.",
+          icono: const Icon(
+            Icons.error_outline_outlined,
+            color: Colors.white,
+          ));
+    }
+    cargandoPedidosEnEspera.value = false;
+  }
+
   Future<String> _getNombresCliente(String cedula) async {
     final nombre =
         await _personaRepository.getNombresPersonaPorCedula(cedula: cedula);
     return nombre ?? '';
   }
+
+  void rechazarPedidoEnEspera(String idPedido) async {
+    try {
+      await _pedidosRepository.updateEstadoPedido(
+          idPedido: idPedido, estadoPedido: "estado3");
+
+      cargarListaPedidosEnEspera();
+
+    } on FirebaseException catch (e) {
+      Mensajes.showGetSnackbar(
+          titulo: "Error",
+          mensaje: "Se produjo un error inesperado.",
+          icono: const Icon(
+            Icons.error_outline_outlined,
+            color: Colors.white,
+          ));
+    }
+  }
+
+  aceptarPedidoEnEspera(String idPedido) async {
+    try {
+      _pedidosRepository.updateEstadoPedido(
+          idPedido: idPedido, estadoPedido: "estado2");
+
+      cargarListaPedidosEnEspera();
+      
+      Mensajes.showGetSnackbar(
+          titulo: "Mensaje",
+          mensaje: "Pedido aceptado con éxito,",
+          icono: const Icon(
+            Icons.check_circle_outline_outlined,
+            color: Colors.white,
+          ),
+          duracion: const Duration(seconds: 1));
+    } on FirebaseException catch (e) {
+      Mensajes.showGetSnackbar(
+          titulo: "Error",
+          mensaje: "Se produjo un error inesperado.",
+          icono: const Icon(
+            Icons.error_outline_outlined,
+            color: Colors.white,
+          ),
+          duracion: const Duration(seconds: 2));
+    }
+  }
+
+  /* METODOS PARA PEDIDOS ACEPATADOS */
 
   Future<void> _cargarNombresClienteParaPedidosAceptados() async {
     try {
@@ -67,7 +143,7 @@ class PedidosController extends GetxController {
             cedula: item.idCliente);
         _nombresClientesAceptados.add(nombre!);
 
-        final direccion = await getDireccionXLatLng(
+        final direccion = await _getDireccionXLatLng(
             LatLng(item.direccion.latitud, item.direccion.longitud));
         _direccionClientesAceptados.add(direccion);
       }
@@ -100,7 +176,7 @@ class PedidosController extends GetxController {
     }
   }
 
-  Future<String> getDireccionXLatLng(LatLng posicion) async {
+  Future<String> _getDireccionXLatLng(LatLng posicion) async {
     List<Placemark> placemark =
         await placemarkFromCoordinates(posicion.latitude, posicion.longitude);
     Placemark lugar = placemark[0];
@@ -154,12 +230,12 @@ class PedidosController extends GetxController {
             color: Colors.white,
           ),
           duracion: const Duration(seconds: 1));
-      print(_pedidosenespera.length);
+      print(_listaPedidosEnEspera.length);
       print(_pedidosAceptados.length);
       _cargarListaPedidosAceptados();
 
       print("Actualizado \n");
-      print(_pedidosenespera.length);
+      print(_listaPedidosEnEspera.length);
       print(_pedidosAceptados.length);
     } on FirebaseException catch (e) {
       Mensajes.showGetSnackbar(
@@ -174,76 +250,5 @@ class PedidosController extends GetxController {
   }
 
   /** */
-  RxList<PedidoModel> dataGame = <PedidoModel>[].obs;
 
-  void readGame() async {
-    try {
-      cargandoPedidosEnEspera.value = true;
-      final lista = (await _pedidosRepository.getPedidoPorField(
-              field: 'idEstadoPedido', dato: 'estado1')) ??
-          [];
-
-      //
-      for (var i = 0; i < lista.length; i++) {
-        final nombre = await _getNombresCliente(lista[i].idCliente);
-        final direccion = await getDireccionXLatLng(
-            LatLng(lista[i].direccion.latitud, lista[i].direccion.longitud));
-        lista[i].nombreUsuario = nombre;
-        lista[i].direccionUsuario = direccion;
-      }
-
-      dataGame.value = lista;
-    } on FirebaseException catch (e) {
-      Mensajes.showGetSnackbar(
-          titulo: "Error",
-          mensaje: "Se produjo un error inesperado.",
-          icono: const Icon(
-            Icons.error_outline_outlined,
-            color: Colors.white,
-          ));
-    }
-    cargandoPedidosEnEspera.value = false;
-  }
-
-  void deleteGame(String idPedido) async {
-    try {
-      await _pedidosRepository.updateEstadoPedido(
-          idPedido: idPedido, estadoPedido: "estado3");
-      readGame();
-    } on FirebaseException catch (e) {
-      Mensajes.showGetSnackbar(
-          titulo: "Error",
-          mensaje: "Se produjo un error inesperado.",
-          icono: const Icon(
-            Icons.error_outline_outlined,
-            color: Colors.white,
-          ));
-    }
-  }
-
-  aceptarPedido(String idPedido) async {
-    try {
-      _pedidosRepository.updateEstadoPedido(
-          idPedido: idPedido, estadoPedido: "estado2");
-
-      readGame();
-      Mensajes.showGetSnackbar(
-          titulo: "Mensaje",
-          mensaje: "Pedido aceptado con éxito,",
-          icono: const Icon(
-            Icons.check_circle_outline_outlined,
-            color: Colors.white,
-          ),
-          duracion: const Duration(seconds: 1));
-    } on FirebaseException catch (e) {
-      Mensajes.showGetSnackbar(
-          titulo: "Error",
-          mensaje: "Se produjo un error inesperado.",
-          icono: const Icon(
-            Icons.error_outline_outlined,
-            color: Colors.white,
-          ),
-          duracion: const Duration(seconds: 2));
-    }
-  }
 }

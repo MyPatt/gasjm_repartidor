@@ -1,10 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gasjm/app/core/theme/app_theme.dart';
 import 'package:gasjm/app/core/theme/text_theme.dart';
-import 'package:gasjm/app/data/models/pedido_model.dart';
 import 'package:gasjm/app/global_widgets/button_small.dart';
-import 'package:gasjm/app/global_widgets/dialogs/dialogs.dart';
 import 'package:gasjm/app/global_widgets/text_description.dart';
 import 'package:gasjm/app/global_widgets/text_subtitle.dart';
 import 'package:gasjm/app/modules/pedidos/pedidos_controller.dart';
@@ -12,81 +9,35 @@ import 'package:get/get.dart';
 
 class PedidosEnEsperaPage2 extends StatelessWidget {
   PedidosEnEsperaPage2({Key? key}) : super(key: key);
-  final PedidosController gameController = Get.put(PedidosController());
-
-  Future<void> _showMyDialog(BuildContext context, String id) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete Data'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: const <Widget>[
-                Text('Would you like to remove data ?'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                overlayColor: MaterialStateProperty.all<Color>(
-                    Color.fromARGB(255, 244, 117, 108)),
-              ),
-              child: const Text('Remove'),
-              onPressed: () => _onDeleteData(context, id),
-            ),
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _pullRefresh() async {
-    gameController.readGame();
-  }
-
-  Future<void> _onDeleteData(BuildContext context, String id) async {
-    gameController.deleteGame(id);
-    Navigator.of(context).pop();
-  }
-
-  Future<void> _onEdit(int id) async {
-    /* gameController.id.value = id;
-    gameController.toEditPage();*/
-  }
+  final PedidosController controladorDePedidos = Get.put(PedidosController());
 
   @override
   Widget build(BuildContext context) {
     return Obx(
       () => RefreshIndicator(
-        onRefresh: _pullRefresh,
+        onRefresh: _pullRefrescar,
         child: Stack(
           children: [
             Column(
               children: [
-                Text(
+                /* Text(
                   'Data Game',
                   style: TextStyle(
                       fontSize: 25,
                       color: Colors.orange,
                       fontWeight: FontWeight.bold),
-                ),
-                Container(
-                  child: Expanded(
-                    child: ListView(
-                      children: gameController.dataGame.map((e) {
-                        var index = gameController.dataGame.indexOf(e);
-                        index++;
-                        return Card(
+                ),*/
+                Expanded(
+                  child: ListView(
+                    children:
+                        controladorDePedidos.listaPedidosEnEspera.map((e) {
+                      var index =
+                          controladorDePedidos.listaPedidosEnEspera.indexOf(e);
+                      index++;
+
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Card(
                           shape: Border.all(color: AppTheme.light, width: 0.5),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -131,32 +82,38 @@ class PedidosEnEsperaPage2 extends StatelessWidget {
                                         texto: "Rechazar",
                                         color: AppTheme.light,
                                         onPressed: () {
-                                          _showMyDialog(context, e.idPedido);
+                                          _showDialogoParaRechazar(
+                                              context, e.idPedido);
                                           /* _buildShowDialog(
                           context, controller.rechzarPedido(pedido.idPedido));*/
                                         }),
                                     ButtonSmall(
                                       texto: "Aceptar",
-                                      onPressed: () =>gameController.aceptarPedido(e.idPedido),
+                                      onPressed: () => controladorDePedidos
+                                          .aceptarPedidoEnEspera(e.idPedido),
                                     )
                                   ],
                                 ),
                               ],
                             ),
                           ),
-                        );
-                      }).toList(),
-                    ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ],
             ),
             Positioned(
-              bottom: 20,
-              right: 20,
+              bottom: 3,
+              right: 5,
               child: FloatingActionButton(
-                  backgroundColor: Colors.blue,
-                  child: Icon(Icons.add),
+                  backgroundColor: Colors.white, 
+                  tooltip: "Agregar un pedido",
+                  child: const Icon(
+                    Icons.add_outlined,
+                    color: AppTheme.blueBackground,
+                  ),
                   onPressed: () {
                     //   Get.to(() => AddGamePage());
                   }),
@@ -165,5 +122,61 @@ class PedidosEnEsperaPage2 extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _showDialogoParaRechazar(BuildContext context, String id) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const TextSubtitle(
+            text: 'Rechazar pedido',
+            textAlign: TextAlign.justify,
+            style: TextoTheme.subtitleStyle2,
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                TextDescription(text: '¿Está seguro de rechazar el pedido?')
+              ],
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.end,
+          actions: <Widget>[
+            TextButton(
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: AppTheme.light,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Rechazar ',
+                style: TextStyle(
+                  color: AppTheme.blueBackground,
+                ),
+              ),
+              onPressed: () => _onrechazarPedidoEnEspera(context, id),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _pullRefrescar() async {
+    controladorDePedidos.cargarListaPedidosEnEspera();
+  }
+
+  Future<void> _onrechazarPedidoEnEspera(
+      BuildContext context, String id) async {
+    controladorDePedidos.rechazarPedidoEnEspera(id);
+    Navigator.of(context).pop();
   }
 }

@@ -12,14 +12,14 @@ class TextSubtitle extends StatelessWidget {
       {Key? key,
       required this.text,
       this.color = AppTheme.blueDark,
-      this.textAlign,
+      this.textAlign=TextAlign.center,
       this.style = TextoTheme.subtitleStyle1})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
-      textAlign: TextAlign.center,
+      textAlign: textAlign,
       style: style,
     );
   }
