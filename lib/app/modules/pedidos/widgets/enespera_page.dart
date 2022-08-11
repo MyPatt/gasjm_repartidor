@@ -108,7 +108,7 @@ class PedidosEnEsperaPage2 extends StatelessWidget {
               bottom: 3,
               right: 5,
               child: FloatingActionButton(
-                  backgroundColor: Colors.white, 
+                  backgroundColor: Colors.white,
                   tooltip: "Agregar un pedido",
                   child: const Icon(
                     Icons.add_outlined,
@@ -146,7 +146,7 @@ class PedidosEnEsperaPage2 extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               child: const Text(
-                'Cancelar',
+                'No',
                 style: TextStyle(
                   color: AppTheme.light,
                 ),
@@ -157,7 +157,7 @@ class PedidosEnEsperaPage2 extends StatelessWidget {
             ),
             TextButton(
               child: const Text(
-                'Rechazar ',
+                'Si ',
                 style: TextStyle(
                   color: AppTheme.blueBackground,
                 ),

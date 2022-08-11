@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gasjm/app/core/theme/app_theme.dart';
+
 import 'package:gasjm/app/core/utils/mensajes.dart';
 import 'package:gasjm/app/data/models/pedido_model.dart';
 import 'package:gasjm/app/data/repository/pedido_repository.dart';
@@ -18,28 +18,22 @@ class PedidosController extends GetxController {
   final _personaRepository = Get.find<PersonaRepository>();
 
   final cargandoPedidosEnEspera = true.obs;
+  final cargandoPedidosAceptados = true.obs;
 
   //RxList<PedidoModel> dataGame = <PedidoModel>[].obs;
   final RxList<PedidoModel> _listaPedidosEnEspera = <PedidoModel>[].obs;
   RxList<PedidoModel> get listaPedidosEnEspera => _listaPedidosEnEspera;
 
-  final RxList<PedidoModel> _pedidosAceptados = <PedidoModel>[].obs;
-  RxList<PedidoModel> get pedidosAceptados => _pedidosAceptados;
-
-  final RxList<String> _nombresClientesAceptados = <String>[].obs;
-  RxList<String> get nombresClientesAceptados => _nombresClientesAceptados;
-
-  final RxList<String> _direccionClientesAceptados = <String>[].obs;
-  RxList<String> get direccionClientesAceptados => _direccionClientesAceptados;
+  final RxList<PedidoModel> _listaPedidosAceptados = <PedidoModel>[].obs;
+  RxList<PedidoModel> get listaPedidosAceptados => _listaPedidosAceptados;
 
   /* METODOS PROPIOS DEL CONTROLADOR*/
 
   @override
   void onInit() {
     cargarListaPedidosEnEspera();
+    cargarListaPedidosAceptados();
     super.onInit();
-
-    _cargarListaPedidosAceptados();
   }
 
   @override
@@ -95,7 +89,6 @@ class PedidosController extends GetxController {
           idPedido: idPedido, estadoPedido: "estado3");
 
       cargarListaPedidosEnEspera();
-
     } on FirebaseException catch (e) {
       Mensajes.showGetSnackbar(
           titulo: "Error",
@@ -113,7 +106,8 @@ class PedidosController extends GetxController {
           idPedido: idPedido, estadoPedido: "estado2");
 
       cargarListaPedidosEnEspera();
-      
+      cargarListaPedidosAceptados();
+
       Mensajes.showGetSnackbar(
           titulo: "Mensaje",
           mensaje: "Pedido aceptado con éxito,",
@@ -136,34 +130,52 @@ class PedidosController extends GetxController {
 
   /* METODOS PARA PEDIDOS ACEPATADOS */
 
-  Future<void> _cargarNombresClienteParaPedidosAceptados() async {
+  void cargarListaPedidosAceptados() async {
     try {
-      for (var item in _pedidosAceptados) {
-        final nombre = await _personaRepository.getNombresPersonaPorCedula(
-            cedula: item.idCliente);
-        _nombresClientesAceptados.add(nombre!);
-
-        final direccion = await _getDireccionXLatLng(
-            LatLng(item.direccion.latitud, item.direccion.longitud));
-        _direccionClientesAceptados.add(direccion);
-      }
-    } catch (e) {}
-  }
-
-  _cargarListaPedidosAceptados() async {
-    try {
-      _pedidosAceptados.value = (await _pedidosRepository.getPedidoPorField(
+      cargandoPedidosAceptados.value = true;
+      final lista = (await _pedidosRepository.getPedidoPorField(
               field: 'idEstadoPedido', dato: 'estado2')) ??
           [];
-      _cargarNombresClienteParaPedidosAceptados();
+
+      //
+      for (var i = 0; i < lista.length; i++) {
+        final nombre = await _getNombresCliente(lista[i].idCliente);
+        final direccion = await _getDireccionXLatLng(
+            LatLng(lista[i].direccion.latitud, lista[i].direccion.longitud));
+        lista[i].nombreUsuario = nombre;
+        lista[i].direccionUsuario = direccion;
+      }
+
+      _listaPedidosAceptados.value = lista;
     } on FirebaseException catch (e) {
-      Get.snackbar(
-        'Mensaje',
-        e.message ?? 'Se produjo un error inesperado.',
-        duration: const Duration(seconds: 5),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppTheme.blueDark,
-      );
+      Mensajes.showGetSnackbar(
+          titulo: "Error",
+          mensaje: "Se produjo un error inesperado.",
+          icono: const Icon(
+            Icons.error_outline_outlined,
+            color: Colors.white,
+          ));
+    }
+    cargandoPedidosAceptados.value = false;
+  }
+
+  void actualizarEstadoPedidoAceptado(String idPedido, String estado, [void showGetSnackbar]
+    ) async {
+    try {
+      await _pedidosRepository.updateEstadoPedido(
+          idPedido: idPedido, estadoPedido: estado);
+
+      cargarListaPedidosAceptados();
+
+      showGetSnackbar;
+    } on FirebaseException catch (e) {
+      Mensajes.showGetSnackbar(
+          titulo: "Error",
+          mensaje: "Se produjo un error inesperado.",
+          icono: const Icon(
+            Icons.error_outline_outlined,
+            color: Colors.white,
+          ));
     }
   }
 
@@ -216,39 +228,4 @@ class PedidosController extends GetxController {
       print(e);
     }
   }
-
-  rechzarPedido(String idPedido) async {
-    try {
-      _pedidosRepository.updateEstadoPedido(
-          idPedido: idPedido, estadoPedido: "estado3");
-
-      Mensajes.showGetSnackbar(
-          titulo: "Mensaje",
-          mensaje: "Pedido rechazado con éxito,",
-          icono: const Icon(
-            Icons.check_circle_outline_outlined,
-            color: Colors.white,
-          ),
-          duracion: const Duration(seconds: 1));
-      print(_listaPedidosEnEspera.length);
-      print(_pedidosAceptados.length);
-      _cargarListaPedidosAceptados();
-
-      print("Actualizado \n");
-      print(_listaPedidosEnEspera.length);
-      print(_pedidosAceptados.length);
-    } on FirebaseException catch (e) {
-      Mensajes.showGetSnackbar(
-          titulo: "Error",
-          mensaje: "Se produjo un error inesperado.",
-          icono: const Icon(
-            Icons.error_outline_outlined,
-            color: Colors.white,
-          ),
-          duracion: const Duration(seconds: 2));
-    }
-  }
-
-  /** */
-
 }
