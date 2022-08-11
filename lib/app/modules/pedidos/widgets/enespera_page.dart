@@ -7,8 +7,8 @@ import 'package:gasjm/app/global_widgets/text_subtitle.dart';
 import 'package:gasjm/app/modules/pedidos/pedidos_controller.dart';
 import 'package:get/get.dart';
 
-class PedidosEnEsperaPage2 extends StatelessWidget {
-  PedidosEnEsperaPage2({Key? key}) : super(key: key);
+class PedidosEnEsperaPage extends StatelessWidget {
+  PedidosEnEsperaPage({Key? key}) : super(key: key);
   final PedidosController controladorDePedidos = Get.put(PedidosController());
 
   @override

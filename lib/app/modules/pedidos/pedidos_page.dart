@@ -14,20 +14,7 @@ class PedidosPage extends StatelessWidget {
     return DefaultTabController(
         length: 2,
         child: Scaffold(
-          /*appBar: AppBar(
-            backgroundColor: AppTheme.blueBackground,
-            title: const Text('Pedidos'),
-            automaticallyImplyLeading: false, 
-            bottom: const TabBar(
-              indicatorColor: Colors.white,
-              tabs: [
-                Tab(text: 'En espera'),
-                Tab(
-                  text: 'Aceptados',
-                ),
-              ],
-            ),
-          ),*/
+     
           //Menú deslizable a la izquierda con opciones del  usuario
           drawer: const MenuLateral(),
           //Barra de herramientas de opciones para  agenda y  historial
@@ -48,7 +35,7 @@ class PedidosPage extends StatelessWidget {
           //Body
           body: TabBarView(
             children: [
-              PedidosEnEsperaPage2(),
+              PedidosEnEsperaPage(),
               PedidosAceptadosPage(),
             ],
           ),
