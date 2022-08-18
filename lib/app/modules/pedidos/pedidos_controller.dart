@@ -5,6 +5,7 @@ import 'package:gasjm/app/core/utils/mensajes.dart';
 import 'package:gasjm/app/data/models/pedido_model.dart';
 import 'package:gasjm/app/data/repository/pedido_repository.dart';
 import 'package:gasjm/app/data/repository/persona_repository.dart';
+import 'package:gasjm/app/global_widgets/text_description.dart';
 import 'package:gasjm/app/modules/inicio/widgets/ir_content.dart';
 import 'package:gasjm/app/modules/inicio/widgets/navegacion_content.dart';
 import 'package:gasjm/app/routes/app_routes.dart';
@@ -27,11 +28,37 @@ class PedidosController extends GetxController {
   final RxList<PedidoModel> _listaPedidosAceptados = <PedidoModel>[].obs;
   RxList<PedidoModel> get listaPedidosAceptados => _listaPedidosAceptados;
 
+
+  //:TODO Pedidos aceptados (filtro diseno)
+
+  //Lista para ordenar los pedidos por diferentes categorias
+
+  List<String> dropdownItemsDeOrdenamiento = [
+    "Ordenar por día",
+    "Ordenar por cantidad",
+    "Ordenar por dirección",
+    "Ordenar por tiempo",
+    "Ordenar por cliente"
+  ];
+  RxString valorSeleccionadoItemDeOrdenamiento = 'Ordenar por'.obs;
+
+  //Lista para filtrar los pedidos por dias
+
+  List<String> dropdownItemsDeFiltro= [
+    "Todos", 
+    "Ahora",
+    "Mañana",
+  ];
+  RxString valorSeleccionadoItemDeFiltro = 'Todos'.obs;
+
+
   /* METODOS PROPIOS DEL CONTROLADOR*/
 
   @override
   void onInit() {
     cargarListaPedidosEnEspera();
+    valorSeleccionadoItemDeOrdenamiento.value = dropdownItemsDeOrdenamiento[0];
+    valorSeleccionadoItemDeFiltro.value = dropdownItemsDeFiltro[0];
     cargarListaPedidosAceptados();
     super.onInit();
   }
@@ -159,8 +186,8 @@ class PedidosController extends GetxController {
     cargandoPedidosAceptados.value = false;
   }
 
-  void actualizarEstadoPedidoAceptado(String idPedido, String estado, [void showGetSnackbar]
-    ) async {
+  void actualizarEstadoPedidoAceptado(String idPedido, String estado,
+      [void showGetSnackbar]) async {
     try {
       await _pedidosRepository.updateEstadoPedido(
           idPedido: idPedido, estadoPedido: estado);

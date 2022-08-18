@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gasjm/app/core/theme/app_theme.dart';
 import 'package:gasjm/app/core/theme/text_theme.dart';
+import 'package:gasjm/app/core/utils/responsive.dart';
 import 'package:gasjm/app/global_widgets/button_small.dart';
 import 'package:gasjm/app/global_widgets/text_description.dart';
 import 'package:gasjm/app/global_widgets/text_subtitle.dart';
@@ -18,26 +19,60 @@ class PedidosEnEsperaPage extends StatelessWidget {
         onRefresh: _pullRefrescar,
         child: Stack(
           children: [
-            Column(
-              children: [
-                /* Text(
-                  'Data Game',
-                  style: TextStyle(
-                      fontSize: 25,
-                      color: Colors.orange,
-                      fontWeight: FontWeight.bold),
-                ),*/
-                Expanded(
-                  child: ListView(
-                    children:
-                        controladorDePedidos.listaPedidosEnEspera.map((e) {
-                      var index =
-                          controladorDePedidos.listaPedidosEnEspera.indexOf(e);
-                      index++;
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          DropdownButton(
+                              icon: const Icon(Icons.filter_alt_outlined,
+                                  color: AppTheme.light),
+                              value: controladorDePedidos
+                                  .valorSeleccionadoItemDeFiltro.value,
+                              items: _buildDropdownMenu(
+                                  controladorDePedidos.dropdownItemsDeFiltro),
+                              onChanged: (String? value) {
+                                controladorDePedidos
+                                    .valorSeleccionadoItemDeFiltro
+                                    .value = value ?? "";
+                              }),
+                          DropdownButton(
+                              icon: const Icon(Icons.arrow_drop_down_outlined,
+                                  color: AppTheme.light),
+                              value: controladorDePedidos
+                                  .valorSeleccionadoItemDeOrdenamiento.value,
+                              items: _buildDropdownMenu(controladorDePedidos
+                                  .dropdownItemsDeOrdenamiento),
+                              onChanged: (String? value) {
+                                controladorDePedidos
+                                    .valorSeleccionadoItemDeOrdenamiento
+                                    .value = value ?? "";
+                              }),
+                          IconButton(
+                            padding: const EdgeInsets.all(0.0),
+                            alignment: Alignment.centerRight,
+                            icon: const Icon(
+                                Icons.check_box_outline_blank_outlined,
+                                color: AppTheme.light),
+                            onPressed: () {},
+                          ),
+                        ]),
+                  ),
+                  SizedBox(
+                      height: Responsive.getScreenSize(context).height * .02),
+                  Expanded(
+                    child: ListView(
+                      children:
+                          controladorDePedidos.listaPedidosEnEspera.map((e) {
+                        var index = controladorDePedidos.listaPedidosEnEspera
+                            .indexOf(e);
+                        index++;
 
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Card(
+                        return Card(
                           shape: Border.all(color: AppTheme.light, width: 0.5),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -97,12 +132,12 @@ class PedidosEnEsperaPage extends StatelessWidget {
                               ],
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             Positioned(
               bottom: 3,
@@ -178,5 +213,17 @@ class PedidosEnEsperaPage extends StatelessWidget {
       BuildContext context, String id) async {
     controladorDePedidos.rechazarPedidoEnEspera(id);
     Navigator.of(context).pop();
+  }
+
+  List<DropdownMenuItem<String>> _buildDropdownMenu(List<String> items) {
+    List<DropdownMenuItem<String>> menuItems = [];
+    for (var elemento in items) {
+      menuItems.add(DropdownMenuItem(
+          child: TextDescription(
+            text: elemento,
+          ),
+          value: elemento));
+    }
+    return menuItems;
   }
 }
