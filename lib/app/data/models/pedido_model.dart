@@ -13,6 +13,7 @@ class PedidoModel {
   //final Timestamp? fechaHoraEntregaPedido;
    String? nombreUsuario;
    String? direccionUsuario;
+   int? tiempoEntrega;
 
   final int cantidadPedido;
   final String? notaPedido;
@@ -33,7 +34,8 @@ class PedidoModel {
     required this.notaPedido,
     required this.totalPedido,
     this.nombreUsuario,
-    this.direccionUsuario
+    this.direccionUsuario,
+    this.tiempoEntrega
   });
 
   factory PedidoModel.fromJson(Map<String, dynamic> json) => PedidoModel(

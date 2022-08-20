@@ -5,7 +5,6 @@ import 'package:gasjm/app/core/utils/mensajes.dart';
 import 'package:gasjm/app/data/models/pedido_model.dart';
 import 'package:gasjm/app/data/repository/pedido_repository.dart';
 import 'package:gasjm/app/data/repository/persona_repository.dart';
-import 'package:gasjm/app/global_widgets/text_description.dart';
 import 'package:gasjm/app/modules/inicio/widgets/ir_content.dart';
 import 'package:gasjm/app/modules/inicio/widgets/navegacion_content.dart';
 import 'package:gasjm/app/routes/app_routes.dart';
@@ -28,30 +27,33 @@ class PedidosController extends GetxController {
   final RxList<PedidoModel> _listaPedidosAceptados = <PedidoModel>[].obs;
   RxList<PedidoModel> get listaPedidosAceptados => _listaPedidosAceptados;
 
+  final RxList<PedidoModel> _listaFiltradaPedidosEnEspera = <PedidoModel>[].obs;
+  RxList<PedidoModel> get listaFiltradaPedidosEnEspera =>
+      _listaFiltradaPedidosEnEspera;
 
   //:TODO Pedidos aceptados (filtro diseno)
 
   //Lista para ordenar los pedidos por diferentes categorias
 
   List<String> dropdownItemsDeOrdenamiento = [
-    "Ordenar por día",
+    "Ordenar por fecha",
     "Ordenar por cantidad",
-    "Ordenar por dirección",
     "Ordenar por tiempo",
+    "Ordenar por dirección",
     "Ordenar por cliente"
   ];
   RxString valorSeleccionadoItemDeOrdenamiento = 'Ordenar por'.obs;
 
   //Lista para filtrar los pedidos por dias
 
-  List<String> dropdownItemsDeFiltro= [
-    "Todos", 
+  List<String> dropdownItemsDeFiltro = [
+    "Todos",
     "Ahora",
     "Mañana",
   ];
   RxString valorSeleccionadoItemDeFiltro = 'Todos'.obs;
 
-
+ 
   /* METODOS PROPIOS DEL CONTROLADOR*/
 
   @override
@@ -92,6 +94,8 @@ class PedidosController extends GetxController {
       }
 
       _listaPedidosEnEspera.value = lista;
+      //Cargar la lista filtrada al inicio todos
+      _listaFiltradaPedidosEnEspera.value = _listaPedidosEnEspera;
     } on FirebaseException catch (e) {
       Mensajes.showGetSnackbar(
           titulo: "Error",
@@ -155,7 +159,55 @@ class PedidosController extends GetxController {
     }
   }
 
-  /* METODOS PARA PEDIDOS ACEPATADOS */
+  void cargarListaFiltradaDePedidosEnEspera() {
+    final filtroDia = valorSeleccionadoItemDeFiltro.value;
+    if (filtroDia == "Todos") {
+      _listaFiltradaPedidosEnEspera.value = _listaPedidosEnEspera;
+      return;
+    }
+    List<PedidoModel> resultado = [];
+
+    resultado = _listaPedidosEnEspera
+        .where((pedido) => pedido.diaEntregaPedido == filtroDia)
+        .toList();
+
+    _listaFiltradaPedidosEnEspera.value = resultado;
+    ordenarListaFiltradaDePedidosEnEspera();
+  }
+
+  void ordenarListaFiltradaDePedidosEnEspera() {
+    final ordenarCategoria = valorSeleccionadoItemDeOrdenamiento.value;
+    if (ordenarCategoria == dropdownItemsDeOrdenamiento[0]) {
+      _listaFiltradaPedidosEnEspera
+          .sort((a, b) => a.fechaHoraPedido.compareTo(b.fechaHoraPedido));
+
+      return;
+    }
+
+    if (ordenarCategoria == dropdownItemsDeOrdenamiento[1]) {
+      _listaFiltradaPedidosEnEspera
+          .sort((a, b) => a.cantidadPedido.compareTo(b.cantidadPedido));
+
+      return;
+    }
+    if (ordenarCategoria == dropdownItemsDeOrdenamiento[2]) {
+      _listaFiltradaPedidosEnEspera
+          .sort((a, b) => a.tiempoEntrega!.compareTo(b.tiempoEntrega ?? 0));
+
+      return;
+    }
+    if (ordenarCategoria == dropdownItemsDeOrdenamiento[3]) {
+      _listaFiltradaPedidosEnEspera.sort((a, b) =>
+          a.direccionUsuario!.compareTo(b.direccionUsuario.toString()));
+      return;
+    }
+    if (ordenarCategoria == dropdownItemsDeOrdenamiento[4]) {
+      _listaFiltradaPedidosEnEspera.sort(
+          (a, b) => a.nombreUsuario!.compareTo(b.nombreUsuario.toString()));
+      return;
+    }
+  }
+  /* METODOS PARA PEDIDOS ACEPTADOS */
 
   void cargarListaPedidosAceptados() async {
     try {

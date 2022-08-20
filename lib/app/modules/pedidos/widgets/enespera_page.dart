@@ -28,6 +28,7 @@ class PedidosEnEsperaPage extends StatelessWidget {
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
+                          //Opcion para filtrar los pedidos en espera por dia
                           DropdownButton(
                               icon: const Icon(Icons.filter_alt_outlined,
                                   color: AppTheme.light),
@@ -39,7 +40,12 @@ class PedidosEnEsperaPage extends StatelessWidget {
                                 controladorDePedidos
                                     .valorSeleccionadoItemDeFiltro
                                     .value = value ?? "";
+                                //
+                                controladorDePedidos
+                                    .cargarListaFiltradaDePedidosEnEspera();
                               }),
+
+                          //Opcion para ordenar los pedidos en espera por distintos categorias
                           DropdownButton(
                               icon: const Icon(Icons.arrow_drop_down_outlined,
                                   color: AppTheme.light),
@@ -51,24 +57,52 @@ class PedidosEnEsperaPage extends StatelessWidget {
                                 controladorDePedidos
                                     .valorSeleccionadoItemDeOrdenamiento
                                     .value = value ?? "";
+
+                                //
+                                controladorDePedidos
+                                    .ordenarListaFiltradaDePedidosEnEspera();
+
+                                print(controladorDePedidos
+                                    .valorSeleccionadoItemDeOrdenamiento.value);
                               }),
-                          IconButton(
-                            padding: const EdgeInsets.all(0.0),
-                            alignment: Alignment.centerRight,
-                            icon: const Icon(
-                                Icons.check_box_outline_blank_outlined,
-                                color: AppTheme.light),
-                            onPressed: () {},
-                          ),
+
+                          //Cantidad de total de pedidos en espera 
+                           TextDescription(
+                                text: controladorDePedidos
+                                    .listaFiltradaPedidosEnEspera.length
+                                    .toString(),
+                                textAlign: TextAlign.end,
+                              ),
+                              //TODO: Comprobar el ordenamiento de tiempo
+                              //TODO: opcional - aceptar o rechazar pedidos seleccionados
+                        /*  
+                        //Opcion para aceptar o rechazar todos los pedidos en espera por distintos categorias
+                        Row(
+                            children: <Widget>[
+                              TextDescription(
+                                text: controladorDePedidos
+                                    .listaFiltradaPedidosEnEspera.length
+                                    .toString(),
+                                textAlign: TextAlign.left,
+                              ),
+                              SizedBox(
+                                width: 8.00,
+                              ),
+                              const Icon(Icons.check_box_outline_blank_outlined,
+                                  color: AppTheme.light),
+                            ],
+                          ),*/
                         ]),
                   ),
                   SizedBox(
                       height: Responsive.getScreenSize(context).height * .02),
                   Expanded(
                     child: ListView(
-                      children:
-                          controladorDePedidos.listaPedidosEnEspera.map((e) {
-                        var index = controladorDePedidos.listaPedidosEnEspera
+                      children: controladorDePedidos
+                          .listaFiltradaPedidosEnEspera
+                          .map((e) {
+                        var index = controladorDePedidos
+                            .listaFiltradaPedidosEnEspera
                             .indexOf(e);
                         index++;
 
