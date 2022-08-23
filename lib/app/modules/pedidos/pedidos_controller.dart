@@ -24,12 +24,17 @@ class PedidosController extends GetxController {
   final RxList<PedidoModel> _listaPedidosEnEspera = <PedidoModel>[].obs;
   RxList<PedidoModel> get listaPedidosEnEspera => _listaPedidosEnEspera;
 
-  final RxList<PedidoModel> _listaPedidosAceptados = <PedidoModel>[].obs;
-  RxList<PedidoModel> get listaPedidosAceptados => _listaPedidosAceptados;
-
   final RxList<PedidoModel> _listaFiltradaPedidosEnEspera = <PedidoModel>[].obs;
   RxList<PedidoModel> get listaFiltradaPedidosEnEspera =>
       _listaFiltradaPedidosEnEspera;
+
+  final RxList<PedidoModel> _listaPedidosAceptados = <PedidoModel>[].obs;
+  RxList<PedidoModel> get listaPedidosAceptados => _listaPedidosAceptados;
+
+  final RxList<PedidoModel> _listaFiltradaPedidosAceptados =
+      <PedidoModel>[].obs;
+  RxList<PedidoModel> get listaFiltradaPedidosAceptados =>
+      _listaFiltradaPedidosAceptados;
 
   //:TODO Pedidos aceptados (filtro diseno)
 
@@ -43,7 +48,7 @@ class PedidosController extends GetxController {
     "Ordenar por cliente"
   ];
   RxString valorSeleccionadoItemDeOrdenamiento = 'Ordenar por'.obs;
-
+  RxString valorSeleccionadoItemDeOrdenamientoAceptados = 'Ordenar por'.obs;
   //Lista para filtrar los pedidos por dias
 
   List<String> dropdownItemsDeFiltro = [
@@ -52,15 +57,18 @@ class PedidosController extends GetxController {
     "Mañana",
   ];
   RxString valorSeleccionadoItemDeFiltro = 'Todos'.obs;
+  RxString valorSeleccionadoItemDeFiltroAceptados = 'Todos'.obs;
 
- 
   /* METODOS PROPIOS DEL CONTROLADOR*/
 
   @override
   void onInit() {
     cargarListaPedidosEnEspera();
     valorSeleccionadoItemDeOrdenamiento.value = dropdownItemsDeOrdenamiento[0];
+    valorSeleccionadoItemDeOrdenamientoAceptados.value =
+        dropdownItemsDeOrdenamiento[0];
     valorSeleccionadoItemDeFiltro.value = dropdownItemsDeFiltro[0];
+    valorSeleccionadoItemDeFiltroAceptados.value = dropdownItemsDeFiltro[0];
     cargarListaPedidosAceptados();
     super.onInit();
   }
@@ -95,7 +103,8 @@ class PedidosController extends GetxController {
 
       _listaPedidosEnEspera.value = lista;
       //Cargar la lista filtrada al inicio todos
-      _listaFiltradaPedidosEnEspera.value = _listaPedidosEnEspera;
+//      _listaFiltradaPedidosEnEspera.value = _listaPedidosEnEspera;
+      cargarListaFiltradaDePedidosEnEspera();
     } on FirebaseException catch (e) {
       Mensajes.showGetSnackbar(
           titulo: "Error",
@@ -161,48 +170,81 @@ class PedidosController extends GetxController {
 
   void cargarListaFiltradaDePedidosEnEspera() {
     final filtroDia = valorSeleccionadoItemDeFiltro.value;
+    final ordenarCategoria = valorSeleccionadoItemDeOrdenamiento.value;
+    _cargarListaFiltradaDePedidos(_listaPedidosEnEspera,
+        _listaFiltradaPedidosEnEspera, filtroDia, ordenarCategoria);
+  }
+
+  void cargarListaFiltradaDePedidosAceptados() {
+    final filtroDia = valorSeleccionadoItemDeFiltroAceptados.value;
+    final ordenarCategoria = valorSeleccionadoItemDeOrdenamientoAceptados.value;
+    _cargarListaFiltradaDePedidos(_listaPedidosAceptados,
+        _listaFiltradaPedidosAceptados, filtroDia, ordenarCategoria);
+  }
+
+  void _cargarListaFiltradaDePedidos(
+      RxList<PedidoModel> listaPorFiltrar,
+      RxList<PedidoModel> litaFiltrada,
+      String filtroDia,
+      String ordenarCategoria) {
     if (filtroDia == "Todos") {
-      _listaFiltradaPedidosEnEspera.value = _listaPedidosEnEspera;
+      litaFiltrada.value = listaPorFiltrar.value;
+      ordenarListaFiltradaDePedidos(litaFiltrada.value, ordenarCategoria);
+
       return;
     }
     List<PedidoModel> resultado = [];
 
-    resultado = _listaPedidosEnEspera
+    resultado = listaPorFiltrar
         .where((pedido) => pedido.diaEntregaPedido == filtroDia)
         .toList();
 
-    _listaFiltradaPedidosEnEspera.value = resultado;
-    ordenarListaFiltradaDePedidosEnEspera();
+    litaFiltrada.value = resultado;
+    ordenarListaFiltradaDePedidos(litaFiltrada.value, ordenarCategoria);
   }
 
-  void ordenarListaFiltradaDePedidosEnEspera() {
+  ordenarListaFiltradaDePedidosEnEspera() {
     final ordenarCategoria = valorSeleccionadoItemDeOrdenamiento.value;
+
+    ordenarListaFiltradaDePedidos(
+        _listaFiltradaPedidosEnEspera, ordenarCategoria);
+  }
+
+  ordenarListaFiltradaDePedidosAceptados() {
+    final ordenarCategoria = valorSeleccionadoItemDeOrdenamientoAceptados.value;
+    ordenarListaFiltradaDePedidos(
+        _listaFiltradaPedidosAceptados, ordenarCategoria);
+  }
+
+  void ordenarListaFiltradaDePedidos(
+      List<PedidoModel> listaFiltrada, String ordenarCategoria) {
+    print(ordenarCategoria);
     if (ordenarCategoria == dropdownItemsDeOrdenamiento[0]) {
-      _listaFiltradaPedidosEnEspera
+      listaFiltrada
           .sort((a, b) => a.fechaHoraPedido.compareTo(b.fechaHoraPedido));
 
       return;
     }
 
     if (ordenarCategoria == dropdownItemsDeOrdenamiento[1]) {
-      _listaFiltradaPedidosEnEspera
+      listaFiltrada
           .sort((a, b) => a.cantidadPedido.compareTo(b.cantidadPedido));
 
       return;
     }
     if (ordenarCategoria == dropdownItemsDeOrdenamiento[2]) {
-      _listaFiltradaPedidosEnEspera
+      listaFiltrada
           .sort((a, b) => a.tiempoEntrega!.compareTo(b.tiempoEntrega ?? 0));
 
       return;
     }
     if (ordenarCategoria == dropdownItemsDeOrdenamiento[3]) {
-      _listaFiltradaPedidosEnEspera.sort((a, b) =>
+      listaFiltrada.sort((a, b) =>
           a.direccionUsuario!.compareTo(b.direccionUsuario.toString()));
       return;
     }
     if (ordenarCategoria == dropdownItemsDeOrdenamiento[4]) {
-      _listaFiltradaPedidosEnEspera.sort(
+      listaFiltrada.sort(
           (a, b) => a.nombreUsuario!.compareTo(b.nombreUsuario.toString()));
       return;
     }
@@ -226,6 +268,8 @@ class PedidosController extends GetxController {
       }
 
       _listaPedidosAceptados.value = lista;
+      // _listaFiltradaPedidosAceptados.value = _listaPedidosAceptados.value;
+      cargarListaFiltradaDePedidosAceptados();
     } on FirebaseException catch (e) {
       Mensajes.showGetSnackbar(
           titulo: "Error",

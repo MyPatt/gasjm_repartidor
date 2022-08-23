@@ -66,16 +66,16 @@ class PedidosEnEsperaPage extends StatelessWidget {
                                     .valorSeleccionadoItemDeOrdenamiento.value);
                               }),
 
-                          //Cantidad de total de pedidos en espera 
-                           TextDescription(
-                                text: controladorDePedidos
-                                    .listaFiltradaPedidosEnEspera.length
-                                    .toString(),
-                                textAlign: TextAlign.end,
-                              ),
-                              //TODO: Comprobar el ordenamiento de tiempo
-                              //TODO: opcional - aceptar o rechazar pedidos seleccionados
-                        /*  
+                          //Cantidad de total de pedidos en espera
+                          TextDescription(
+                            text: controladorDePedidos
+                                .listaFiltradaPedidosEnEspera.length
+                                .toString(),
+                            textAlign: TextAlign.end,
+                          ),
+                          //TODO: Comprobar el ordenamiento de tiempo
+                          //TODO: opcional - aceptar o rechazar pedidos seleccionados
+                          /*  
                         //Opcion para aceptar o rechazar todos los pedidos en espera por distintos categorias
                         Row(
                             children: <Widget>[
@@ -140,7 +140,7 @@ class PedidosEnEsperaPage extends StatelessWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     TextDescription(text: e.diaEntregaPedido),
-                                    const TextDescription(text: '300m')
+                                    const TextDescription(text: '300 m')
                                   ],
                                 ),
                                 Row(
@@ -150,6 +150,9 @@ class PedidosEnEsperaPage extends StatelessWidget {
                                     ButtonSmall(
                                         texto: "Rechazar",
                                         color: AppTheme.light,
+                                        width: Responsive.getScreenSize(context)
+                                                .width *
+                                            .4,
                                         onPressed: () {
                                           _showDialogoParaRechazar(
                                               context, e.idPedido);
@@ -158,6 +161,9 @@ class PedidosEnEsperaPage extends StatelessWidget {
                                         }),
                                     ButtonSmall(
                                       texto: "Aceptar",
+                                      width: Responsive.getScreenSize(context)
+                                              .width *
+                                          .4,
                                       onPressed: () => controladorDePedidos
                                           .aceptarPedidoEnEspera(e.idPedido),
                                     )
@@ -173,20 +179,7 @@ class PedidosEnEsperaPage extends StatelessWidget {
                 ],
               ),
             ),
-            Positioned(
-              bottom: 3,
-              right: 5,
-              child: FloatingActionButton(
-                  backgroundColor: Colors.white,
-                  tooltip: "Agregar un pedido",
-                  child: const Icon(
-                    Icons.add_outlined,
-                    color: AppTheme.blueBackground,
-                  ),
-                  onPressed: () {
-                    //   Get.to(() => AddGamePage());
-                  }),
-            ),
+           
           ],
         ),
       ),
