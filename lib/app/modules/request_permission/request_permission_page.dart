@@ -1,10 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:gasjm/app/modules/request_permission/request_permission.dart';
+import 'package:flutter/material.dart'; 
 import 'package:gasjm/app/modules/request_permission/request_permission_controller.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:get/get_state_manager/get_state_manager.dart'; 
 
 class RequestPermissionPage extends StatelessWidget {
  const RequestPermissionPage({Key? key}) : super(key: key);

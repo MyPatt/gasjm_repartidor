@@ -3,7 +3,7 @@ import 'package:gasjm/app/core/theme/app_theme.dart';
 
 class PrimaryButton extends StatelessWidget {
   // ignore: use_key_in_widget_constructors
-  PrimaryButton({
+  const PrimaryButton({
     required this.texto,
     required this.onPressed,
   });

@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart'; 
 import 'package:gasjm/app/core/theme/app_theme.dart';
 
 abstract class Dialogs {
@@ -31,40 +30,5 @@ abstract class Dialogs {
             ));
   }
 
-  static List<Widget> _buildListActions(List<String> opcionesTexto) {
-    List<Widget> lista = [];
-    for (var element in opcionesTexto) {
-      lista.add(CupertinoDialogAction(
-          onPressed: () {},
-          child: Text(
-            element,
-          )));
-    }
 
-    return lista;
-  }
-
-  static Future<void> alert2(
-    BuildContext context, {
-    String? title,
-    String? content,
-  }) {
-    return showCupertinoModalPopup(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text('Reset settings?'),
-              content: Text(
-                  'This will reset your device to its default factory settings.'),
-              actions: [
-                TextButton(
-                  onPressed: () {},
-                  child: Text('CANCEL'),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: Text('ACCEPT'),
-                ),
-              ],
-            ));
-  }
 }

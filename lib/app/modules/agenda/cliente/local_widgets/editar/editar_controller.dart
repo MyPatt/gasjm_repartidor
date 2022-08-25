@@ -1,6 +1,5 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:gasjm/app/routes/app_routes.dart';
+ 
+import 'package:flutter/material.dart'; 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -17,10 +16,6 @@ class EditarAgendaController extends GetxController {
     hora = DateTime.now();
   }
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
 
   @override
   void onClose() {
@@ -31,7 +26,7 @@ class EditarAgendaController extends GetxController {
   mostrarCalendario(BuildContext context) {}
   //Fecha
   Future<void> selectDate(BuildContext context) async {
-    print(fecha.value);
+  
     final DateTime? d = await showDatePicker(
       //we wait for the dialog to return
       context: context,
@@ -44,12 +39,10 @@ class EditarAgendaController extends GetxController {
     {
       // we format the selected date and assign it to the state variable
       fecha.value = DateFormat.yMMMMd("en_US").format(d);
-      print(fecha.value);
+   
     }
     myController.value = TextEditingController(text: fecha.value);
   }
 
-  _printLatestValue() {
-    print("Second text field: ${myController.value.text}");
-  }
+ 
 }

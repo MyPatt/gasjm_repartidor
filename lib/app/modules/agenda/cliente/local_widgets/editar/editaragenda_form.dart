@@ -36,7 +36,7 @@ class EditarAgendaForm extends StatelessWidget {
                       SizedBox(
                           height:
                               Responsive.getScreenSize(context).height * .05),
-                      InputText(
+                      const InputText(
                         keyboardType: TextInputType.streetAddress,
                         iconPrefix: Icons.maps_home_work_outlined,
                         iconColor: AppTheme.light,
@@ -48,7 +48,7 @@ class EditarAgendaForm extends StatelessWidget {
                       SizedBox(
                           height:
                               Responsive.getScreenSize(context).height * .02),
-                      InputText(
+                      const InputText(
                         keyboardType: TextInputType.streetAddress,
                         iconPrefix: Icons.room_outlined,
                         iconColor: AppTheme.light,
@@ -59,7 +59,7 @@ class EditarAgendaForm extends StatelessWidget {
                       SizedBox(
                           height:
                               Responsive.getScreenSize(context).height * .02),
-                      InputText(
+                      const InputText(
                         keyboardType: TextInputType.streetAddress,
                         iconPrefix: Icons.map_outlined,
                         iconColor: AppTheme.light,
@@ -70,7 +70,7 @@ class EditarAgendaForm extends StatelessWidget {
                       SizedBox(
                           height:
                               Responsive.getScreenSize(context).height * .02),
-                      InputText(
+                       const InputText(
                         keyboardType: TextInputType.streetAddress,
                         iconPrefix: Icons.home_outlined,
                         iconColor: AppTheme.light,
@@ -97,14 +97,14 @@ class EditarAgendaForm extends StatelessWidget {
                             _.selectDate(context);
                           },
                           onChanged: (text) {
-                            print("First text field: $text");
+                            //print("First text field: $text");
                           },
                         );
                       }),
                       SizedBox(
                           height:
                               Responsive.getScreenSize(context).height * .02),
-                      InputText(
+                       const InputText(
                         iconPrefix: Icons.timer_outlined,
                         iconColor: AppTheme.light,
                         border: InputBorder.none,
@@ -120,7 +120,7 @@ class EditarAgendaForm extends StatelessWidget {
                       SizedBox(
                           height:
                               Responsive.getScreenSize(context).height * .02),
-                      InputText(
+                      const InputText(
                         iconPrefix: Icons.pin_outlined,
                         iconColor: AppTheme.light,
                         border: InputBorder.none,

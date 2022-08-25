@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gasjm/app/core/theme/app_theme.dart';
 
 class HeaderGlobal extends StatelessWidget {
+  const HeaderGlobal({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return AspectRatio(

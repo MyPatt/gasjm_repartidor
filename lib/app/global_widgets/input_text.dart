@@ -30,7 +30,7 @@ class InputText extends StatelessWidget {
   final void Function()? onTap;
   final void Function(String?)? onSaved;
 
-  InputText({
+  const InputText({Key? key, 
     this.initialValue,
     this.autofocus = false,
     this.textInputAction = TextInputAction.next,
@@ -57,7 +57,7 @@ class InputText extends StatelessWidget {
     this.onTap,
     this.onSaved,
     this.iconPrefix,
-  });
+  }) : super(key: key);
   /*InputText( 
       {this.initialValue,
       this.readOnly = false,

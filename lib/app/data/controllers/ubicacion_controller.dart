@@ -6,8 +6,7 @@ enum EstadosDeUbicacion { ubicacionNoPermitida, ubicacionPermitida }
 
 //Controlador de ubicacion que rige en toda la app
 class UbicacionGloablController extends GetxController {
-  @override
-  void onInit() {}
+
 }
 
 //TODO: Implementar GPS BLOC CON GETX

@@ -62,8 +62,7 @@ class PedidosEnEsperaPage extends StatelessWidget {
                                 controladorDePedidos
                                     .ordenarListaFiltradaDePedidosEnEspera();
 
-                                print(controladorDePedidos
-                                    .valorSeleccionadoItemDeOrdenamiento.value);
+                                //print(controladorDePedidos   .valorSeleccionadoItemDeOrdenamiento.value);
                               }),
 
                           //Cantidad de total de pedidos en espera

@@ -10,7 +10,7 @@ class PrimaryMediumButton extends StatelessWidget {
   final String texto;
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 150,
       child: MaterialButton(
         color: AppTheme.blueBackground,

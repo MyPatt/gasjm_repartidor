@@ -11,7 +11,7 @@ class ExplorarMapa extends StatelessWidget {
     final controller = InicioController();
     //Evento en el marcker clic
     controller.onMarcadorTap.listen((id) {
-      print("solo por probar $id");
+      //print("solo por probar $id");
     });
     //
     return GetBuilder<InicioController>(

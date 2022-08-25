@@ -71,8 +71,7 @@ class PedidosAceptadosPage extends StatelessWidget {
                             controladorDePedidos
                                 .ordenarListaFiltradaDePedidosAceptados();
 
-                            print(controladorDePedidos
-                                .valorSeleccionadoItemDeOrdenamiento.value);
+                           // print(controladorDePedidos  .valorSeleccionadoItemDeOrdenamiento.value);
                           }),
 
                       //Cantidad de total de pedidos en espera
@@ -114,94 +113,6 @@ class PedidosAceptadosPage extends StatelessWidget {
                 }),
           ),
         ])));
-  }
-
-  //List<Widget> _buildListPedidosEnEsperaa(List<PedidoModel> value) {}
-  _buildListPedidosAceptados(List<PedidoModel> lista, BuildContext contex) {
-    return RefreshIndicator(
-        onRefresh: _pullRefrescar,
-        child: Stack(children: [
-          Column(children: [
-            /* Text(
-                  'Data Game',
-                  style: TextStyle(
-                      fontSize: 25,
-                      color: Colors.orange,
-                      fontWeight: FontWeight.bold),
-                ),*/
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    //Opcion para filtrar los pedidos en espera por dia
-                    DropdownButton(
-                        icon: const Icon(Icons.filter_alt_outlined,
-                            color: AppTheme.light),
-                        value: controladorDePedidos
-                            .valorSeleccionadoItemDeFiltro.value,
-                        items: _buildDropdownMenu(
-                            controladorDePedidos.dropdownItemsDeFiltro),
-                        onChanged: (String? value) {
-                          controladorDePedidos.valorSeleccionadoItemDeFiltro
-                              .value = value ?? "";
-                          //
-                          controladorDePedidos
-                              .cargarListaFiltradaDePedidosAceptados();
-                        }),
-
-                    //Opcion para ordenar los pedidos en espera por distintos categorias
-                    DropdownButton(
-                        icon: const Icon(Icons.arrow_drop_down_outlined,
-                            color: AppTheme.light),
-                        value: controladorDePedidos
-                            .valorSeleccionadoItemDeOrdenamiento.value,
-                        items: _buildDropdownMenu(
-                            controladorDePedidos.dropdownItemsDeOrdenamiento),
-                        onChanged: (String? value) {
-                          controladorDePedidos
-                              .valorSeleccionadoItemDeOrdenamiento
-                              .value = value ?? "";
-
-                          //
-                          controladorDePedidos
-                              .ordenarListaFiltradaDePedidosAceptados();
-
-                          print(controladorDePedidos
-                              .valorSeleccionadoItemDeOrdenamiento.value);
-                        }),
-
-                    //Cantidad de total de pedidos en espera
-                    TextDescription(
-                      text: controladorDePedidos
-                          .listaFiltradaPedidosAceptados.length
-                          .toString(),
-                      textAlign: TextAlign.end,
-                    ),
-                    //TODO: Comprobar el ordenamiento de tiempo
-                    //TODO: opcional - aceptar o rechazar pedidos seleccionados
-                  ]),
-            ),
-            SizedBox(height: height),
-            Expanded(
-                child: ListView(
-              children: _buildListPedidosAceptadoss(lista, contex),
-            ))
-          ]),
-        ]));
-  }
-
-  List<Widget> _buildListPedidosAceptadoss(
-      List<PedidoModel> lista, BuildContext contex) {
-    List<Widget> listItemsPedidosEnEspera = [];
-    for (int i = 0; i < lista.length; i++) {
-      listItemsPedidosEnEspera.add(Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: _cardPedido(lista[i], contex)));
-      /* child: Text('Sliver Item ${i.toString()}',
-            style: const TextStyle(fontSize: 22.0))));*/
-    }
-    return listItemsPedidosEnEspera;
   }
 
   Widget _cardPedido(PedidoModel pedido, BuildContext context) {

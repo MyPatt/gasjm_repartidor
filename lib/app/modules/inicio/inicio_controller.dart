@@ -59,10 +59,6 @@ class InicioController extends GetxController {
     _cargarDatosIniciales();
   }
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
 
   @override
   void onClose() {

@@ -73,15 +73,7 @@ class PedidosController extends GetxController {
     super.onInit();
   }
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
+   
 
   /* METODOS PARA PEDIDOS EN ESPERA */
 
@@ -105,7 +97,7 @@ class PedidosController extends GetxController {
       //Cargar la lista filtrada al inicio todos
 //      _listaFiltradaPedidosEnEspera.value = _listaPedidosEnEspera;
       cargarListaFiltradaDePedidosEnEspera();
-    } on FirebaseException catch (e) {
+    } on FirebaseException {
       Mensajes.showGetSnackbar(
           titulo: "Error",
           mensaje: "Se produjo un error inesperado.",
@@ -129,7 +121,7 @@ class PedidosController extends GetxController {
           idPedido: idPedido, estadoPedido: "estado3");
 
       cargarListaPedidosEnEspera();
-    } on FirebaseException catch (e) {
+    } on FirebaseException {
       Mensajes.showGetSnackbar(
           titulo: "Error",
           mensaje: "Se produjo un error inesperado.",
@@ -156,7 +148,7 @@ class PedidosController extends GetxController {
             color: Colors.white,
           ),
           duracion: const Duration(seconds: 1));
-    } on FirebaseException catch (e) {
+    } on FirebaseException {
       Mensajes.showGetSnackbar(
           titulo: "Error",
           mensaje: "Se produjo un error inesperado.",
@@ -270,7 +262,7 @@ class PedidosController extends GetxController {
       _listaPedidosAceptados.value = lista;
       // _listaFiltradaPedidosAceptados.value = _listaPedidosAceptados.value;
       cargarListaFiltradaDePedidosAceptados();
-    } on FirebaseException catch (e) {
+    } on FirebaseException {
       Mensajes.showGetSnackbar(
           titulo: "Error",
           mensaje: "Se produjo un error inesperado.",
@@ -291,7 +283,7 @@ class PedidosController extends GetxController {
       cargarListaPedidosAceptados();
 
       showGetSnackbar;
-    } on FirebaseException catch (e) {
+    } on FirebaseException {
       Mensajes.showGetSnackbar(
           titulo: "Error",
           mensaje: "Se produjo un error inesperado.",
