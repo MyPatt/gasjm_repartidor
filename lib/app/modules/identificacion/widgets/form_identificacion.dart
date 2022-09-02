@@ -56,6 +56,7 @@ class FormIdentificacion extends StatelessWidget {
                     ],
                     validator: Validacion.validarCedula,
                     labelText: "Cédula",
+                    onChanged: _.onChangedIdentificacion,
                   ),
                   SizedBox(
                       height: Responsive.getScreenSize(context).height * .05),
@@ -71,7 +72,9 @@ class FormIdentificacion extends StatelessWidget {
                                 _.cargarPerfil();
                               }
                             }),
-                        if (estadoProceso) const CircularProgressIndicator(backgroundColor: Colors.white),
+                        if (estadoProceso)
+                          const CircularProgressIndicator(
+                              backgroundColor: Colors.white),
                       ],
                     );
                   }),

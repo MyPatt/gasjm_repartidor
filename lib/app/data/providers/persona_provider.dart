@@ -1,20 +1,62 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gasjm/app/data/controllers/autenticacion_controller.dart';
+import 'package:gasjm/app/data/models/detallerepartidor_model.dart';
+import 'package:gasjm/app/data/models/pedido_model.dart';
 import 'package:gasjm/app/data/models/persona_model.dart';
+import 'package:gasjm/app/data/models/ubicacionrepartidor_model.dart';
+import 'package:get/get.dart';
 
 class PersonaProvider {
   //Instancia de firestore
   final _firestoreInstance = FirebaseFirestore.instance;
- 
-    //Par devolver el usuario actual conectado
+
+  //Par devolver el usuario actual conectado
   User get usuarioActual {
     final usuario = FirebaseAuth.instance.currentUser;
     if (usuario == null) throw Exception('Excepción no autenticada');
     return usuario;
   }
 
-  Future<void> insertPersona({required PersonaModel persona}) async {
-    await _firestoreInstance.collection('persona').add(persona.toMap());
+  Future<void> insertPersona({
+    required PersonaModel persona,
+  }) async {
+    //InsertarRepartidor
+        // //Ingresar datos de usuario
+    final uid =
+        Get.find<AutenticacionController>().autenticacionUsuario.value!.uid;
+
+  await  _firestoreInstance.collection("persona").doc(uid).set(persona.toMap()); 
+
+    //insertar ubicacion del repartidor
+    UbicacionRepartidorModel _ubicacionRepartidorModel =
+        UbicacionRepartidorModel(
+      idRepartidor: persona.cedulaPersona,
+      fechaUbicacionRepartidor: Timestamp.now(),
+      direccionUbicacionRepartidor:
+          persona.direccionPersona ?? Direccion(latitud: 0, longitud: 0),
+    );
+
+    final _resultadoUbicacion = await _firestoreInstance
+        .collection('ubicacionRepartidor')
+        .add(_ubicacionRepartidorModel.toMap());
+    await _firestoreInstance
+        .collection('ubicacionRepartidor')
+        .doc(_resultadoUbicacion.id)
+        .update({"idUbicacionRepartidor": _resultadoUbicacion.id});
+
+    //insertar estado del repartidor
+    DetalleRepartidor _detalle = DetalleRepartidor(
+        idRepartidor: persona.cedulaPersona,
+        idEstadoRepartidor: "estadoRepartidor1");
+
+    final _resultado = await _firestoreInstance
+        .collection('estadoRepartidor')
+        .add(_detalle.toMap());
+    await _firestoreInstance
+        .collection('estadoRepartidor')
+        .doc(_resultado.id)
+        .update({"idDetalleRepartidor": _resultado.id});
   }
 
   //
@@ -81,6 +123,7 @@ class PersonaProvider {
     }
     return null;
   }
+
   //Obtner datos del usuario actual
   Future<PersonaModel?> getUsuarioActual() async {
     final snapshot = await _firestoreInstance

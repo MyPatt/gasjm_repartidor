@@ -97,8 +97,23 @@ class IdentificacionController extends GetxController {
         }
       }
     } on FirebaseException catch (e) {
-      print(">>> ${e.message}");
+      Mensajes.showGetSnackbar(
+              titulo: 'Alerta',
+              mensaje:
+                  'Ha ocurrido un error, por favor inténtelo de nuevo más tarde',
+              duracion: const Duration(seconds: 7),
+              icono: const Icon(
+                Icons.error_outline_outlined,
+                color: Colors.white,
+              ));
     }
     cargando.value = false;
   }
-}
+
+   void onChangedIdentificacion(valor) {
+  
+    if (valor.length > 9) {
+    cedulaTextoController.text = valor;
+    }
+  }
+} 

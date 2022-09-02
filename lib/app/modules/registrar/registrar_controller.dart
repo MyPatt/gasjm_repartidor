@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:gasjm/app/core/utils/mensajes.dart';
-import 'package:gasjm/app/data/models/persona_model.dart'; 
+import 'package:gasjm/app/data/models/pedido_model.dart';
+import 'package:gasjm/app/data/models/persona_model.dart';
 import 'package:gasjm/app/data/repository/authenticacion_repository.dart';
 import 'package:gasjm/app/routes/app_routes.dart';
 import 'package:get/get.dart';
+import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistrarController extends GetxController {
@@ -67,12 +69,15 @@ class RegistrarController extends GetxController {
 
   //Metodo para registrar
 
-  Future<void> registrarUsuario() async {
+  Future<void> registrarRepartidor() async {
     //Obtener datos
     final nombre = nombreTextoController.text;
     final apellido = apellidoTextoController.text;
     final correo = correoElectronicoTextoController.text;
     final contrasena = contrasenaTextoController.text;
+    //
+      LocationData location =await Location.instance.getLocation();
+    Direccion direccionPersona=Direccion(latitud: location.latitude??0, longitud: location.longitude??0);
 
     //Guardar en model
     PersonaModel usuarioDatos = PersonaModel(
@@ -81,7 +86,8 @@ class RegistrarController extends GetxController {
         apellidoPersona: apellido,
         idPerfil: perfil,
         contrasenaPersona: contrasena,
-        correoPersona: correo);
+        correoPersona: correo,
+        direccionPersona:direccionPersona );
 
 //
     try {
@@ -92,7 +98,7 @@ class RegistrarController extends GetxController {
 //En firebase
       await _authRepository.registrarUsuario(usuarioDatos);
 //Remover datos locales
-      _removerCedulaYPerfil();
+      _removerCedula();
 
       //Mensaje de ingreso
       Mensajes.showGetSnackbar(
@@ -126,7 +132,7 @@ class RegistrarController extends GetxController {
   }
 
   //Eliminar la cedula del usuario de forma local
-  _removerCedulaYPerfil() async {
+  _removerCedula() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove("cedula_usuario");
     //  await prefs.remove("perfil_usuario");

@@ -1,3 +1,5 @@
+import 'package:gasjm/app/data/models/pedido_model.dart';
+
 class PersonaModel {
   PersonaModel(
       {required this.cedulaPersona,
@@ -16,7 +18,7 @@ class PersonaModel {
   final String apellidoPersona;
   final String? correoPersona;
   final String? fotoPersona;
-  final String? direccionPersona;
+  final Direccion? direccionPersona;
   final String? celularPersona;
   final String? fechaNaciPersona;
   final String idPerfil;
@@ -28,7 +30,7 @@ class PersonaModel {
         apellidoPersona: json["apellido"],
         correoPersona: json["correo"],
         fotoPersona: json["foto"],
-        direccionPersona: json["direccion"],
+        direccionPersona: Direccion.fromMap(json["direccion"]),
         celularPersona: json["celular"],
         fechaNaciPersona: json["fechaNacimiento"],
         idPerfil: json["idPerfil"],
@@ -41,7 +43,7 @@ class PersonaModel {
         "apellido": apellidoPersona,
         "correo": correoPersona,
         "foto": fotoPersona,
-        "direccion": direccionPersona,
+        "direccion": direccionPersona?.toMap(),
         "celular": celularPersona,
         "fechaNacimiento": fechaNaciPersona,
         "idPerfil": idPerfil,

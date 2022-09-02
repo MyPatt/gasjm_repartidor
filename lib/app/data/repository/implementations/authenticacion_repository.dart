@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; 
-import 'package:gasjm/app/data/controllers/autenticacion_controller.dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gasjm/app/data/controllers/autenticacion_controller.dart';
 import 'package:gasjm/app/data/models/persona_model.dart';
 import 'package:gasjm/app/data/models/usuario_model.dart';
+import 'package:gasjm/app/data/providers/persona_provider.dart';
 import 'package:gasjm/app/data/repository/authenticacion_repository.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,7 +15,8 @@ class AutenticacionRepositoryImpl extends AutenticacionRepository {
 //Modelo User de Firebase
   AutenticacionUsuario? _usuarioDeFirebase(User? usuario) => usuario == null
       ? null
-      : AutenticacionUsuario(usuario.uid, usuario.displayName,usuario.tenantId);
+      : AutenticacionUsuario(
+          usuario.uid, usuario.displayName, usuario.tenantId);
 
   @override
   AutenticacionUsuario? get autenticacionUsuario =>
@@ -45,45 +47,30 @@ class AutenticacionRepositoryImpl extends AutenticacionRepository {
   }
 
   @override
-  Future<AutenticacionUsuario?> iniciarSesionConGoogle() async {
-    final usuarioGoogle = await GoogleSignIn().signIn();
-    final autenticacionGoogle = await usuarioGoogle?.authentication;
-
-    final credencial = GoogleAuthProvider.credential(
-      accessToken: autenticacionGoogle?.accessToken,
-      idToken: autenticacionGoogle?.idToken,
-    );
-
-    final resultadoAutenticacion =
-        await FirebaseAuth.instance.signInWithCredential(credencial);
-    return _usuarioDeFirebase(resultadoAutenticacion.user);
-  }
-
- 
-  @override
   Future<void> cerrarSesion() async {
     final googleSignIn = GoogleSignIn();
     await Future.delayed(const Duration(seconds: 3));
     await googleSignIn.signOut();
     await _firebaseAutenticacion.signOut();
   }
+
   @override
-  Future<AutenticacionUsuario?> registrarUsuario(PersonaModel usuario) async {
+  Future<AutenticacionUsuario?> registrarUsuario(PersonaModel persona) async {
     //Registro de correo y contraena
     final resultadoAutenticacion =
         await _firebaseAutenticacion.createUserWithEmailAndPassword(
-            email: usuario.correoPersona??'', password: usuario.contrasenaPersona);
-    
+            email: persona.correoPersona ?? '',
+            password: persona.contrasenaPersona);
+
     //Actualizar Nombre y apellido del usuario creado
     await resultadoAutenticacion.user!.updateDisplayName(
-      "${usuario.nombrePersona} ${usuario.apellidoPersona}",
+      "${persona.nombrePersona} ${persona.apellidoPersona}",
     );
     // //Ingresar datos de usuario
-    final uid =
-        Get.find<AutenticacionController>().autenticacionUsuario.value!.uid;
+    PersonaProvider _personaProvider = PersonaProvider();
+    _personaProvider.insertPersona(persona: persona);
 
-    firestoreInstance.collection("persona").doc(uid).set(usuario.toMap());
-    return _usuarioDeFirebase(resultadoAutenticacion.user);
+    return   _usuarioDeFirebase(resultadoAutenticacion.user);
   }
 
 /*

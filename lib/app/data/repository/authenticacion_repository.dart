@@ -41,12 +41,8 @@ abstract class AutenticacionRepository {
       String correo, String contrasena);
 
   //Crear usuario  con datos
-  Future<AutenticacionUsuario?> registrarUsuario(PersonaModel usuario);
-  Future<AutenticacionUsuario?>registrarUsuarioConGoogle(UsuarioModel usuario);
-
-//Iniciar sesion con google
-  Future<AutenticacionUsuario?> iniciarSesionConGoogle();
- 
+  Future<AutenticacionUsuario?> registrarUsuario(PersonaModel persona);
+  
 
 //Cerrar sesion
   Future<void> cerrarSesion();
